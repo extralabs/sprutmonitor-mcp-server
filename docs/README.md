@@ -5,7 +5,7 @@
 | | |
 |--|--|
 | [sprutmonitor.ru](https://sprutmonitor.ru/) | Сайт |
-| [sprutmonitor.ru/docs/](https://sprutmonitor.ru/docs/) | Документация продукта |
+| [sprutmonitor.ru/docs2/](https://sprutmonitor.ru/docs2/) | Документация продукта |
 | [app.sprutmonitor.ru](https://app.sprutmonitor.ru/) | Кабинет |
 | [app.sprutmonitor.ru/api/](https://app.sprutmonitor.ru/api/) | Каталог API в кабинете |
 

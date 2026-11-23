@@ -1,6 +1,6 @@
 # Если не работает
 
-Сбои MCP. Как пользоваться кабинетом: [документация продукта](https://sprutmonitor.ru/docs/). Данные сверяйте в [кабинете](https://app.sprutmonitor.ru/). Формы REST: [каталог API](https://app.sprutmonitor.ru/api/).
+Сбои MCP. Как пользоваться кабинетом: [документация продукта](https://sprutmonitor.ru/docs2/). Данные сверяйте в [кабинете](https://app.sprutmonitor.ru/). Формы REST: [каталог API](https://app.sprutmonitor.ru/api/).
 
 ## Ошибка входа или whoami
 

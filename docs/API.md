@@ -1,11 +1,11 @@
 # Заметки по API
 
-Снимок покрытия MCP для пакета `sprutmonitor-mcp` 0.5.x. Это аудит кабинета только на чтение, не полная копия REST.
+Снимок покрытия MCP для пакета `sprutmonitor-mcp` 0.5.x. Это аудит кабинета только на чтение.
 
 Канонические источники:
 
 - Сайт: https://sprutmonitor.ru/
-- Документация: https://sprutmonitor.ru/docs/
+- Документация: https://sprutmonitor.ru/docs2/
 - Кабинет: https://app.sprutmonitor.ru/
 - Каталог API в кабинете: https://app.sprutmonitor.ru/api/
 
@@ -14,13 +14,13 @@
 | URL | Роль |
 |-----|------|
 | `https://sprutmonitor.ru/` | Сайт |
-| `https://sprutmonitor.ru/docs/` | Документация продукта |
+| `https://sprutmonitor.ru/docs2/` | Документация продукта |
 | `https://app.sprutmonitor.ru/` | Кабинет (SPA) |
 | `https://app.sprutmonitor.ru/api/` | Каталог API внутри кабинета |
-| `https://cloud.sprutmonitor.ru/v3` | База REST для облака. Клиент дописывает `/api/...` |
-| `serverBase` из `spm-config.json` | База локальной установки, со схемой и префиксом вроде `/MonitorServer` |
+| `https://cloud.sprutmonitor.ru/v3` | Адрес Web-api сервера СпрутМонитор, облако |
+| `http://192.168.1.8:82/MonitorServer/` | Тот же адрес на своей установке, со схемой и префиксом |
 
-Пакет `spm-config.json` не читает. Локальную базу задают через `SPRUT_API_BASE`.
+`SPRUT_API_BASE` — этот адрес, в том числе для облака.
 
 ## Вход
 
@@ -133,8 +133,6 @@ HideHidden: False
 | Прочее | CustomReports / Geo / Archive / старый XML Overall | — | out_of_scope_not_in_console |
 | Биллинг | `Pay/*` | — | out_of_scope_write |
 | Мета | эта матрица | `list_api_coverage` | covered |
-
-Биллинг, SMS и reCAPTCHA в сервер не входят.
 
 ### Сводка рисков
 

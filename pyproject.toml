@@ -47,7 +47,7 @@ sprutmonitor-mcp = "sprutmonitor_mcp.server:main"
 
 [project.urls]
 Homepage = "https://sprutmonitor.ru/"
-Documentation = "https://sprutmonitor.ru/docs/"
+Documentation = "https://sprutmonitor.ru/docs2/"
 Console = "https://app.sprutmonitor.ru/"
 API = "https://app.sprutmonitor.ru/api/"
 Repository = "https://github.com/extralabs/sprutmonitor-mcp-server"

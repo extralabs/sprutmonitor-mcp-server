@@ -2,13 +2,13 @@
 
 Как запустить `sprutmonitor-mcp` в Cursor, Claude Desktop и VS Code и как подставить свой вход.
 
-Сайт: [sprutmonitor.ru](https://sprutmonitor.ru/) · [документация](https://sprutmonitor.ru/docs/) · [кабинет](https://app.sprutmonitor.ru/) · [каталог API](https://app.sprutmonitor.ru/api/).
+Сайт: [sprutmonitor.ru](https://sprutmonitor.ru/) · [документация](https://sprutmonitor.ru/docs2/) · [кабинет](https://app.sprutmonitor.ru/) · [каталог API](https://app.sprutmonitor.ru/api/).
 
 ## Что нужно
 
 - Python 3.10+ в том PATH, который видит хост
 - Пакет из исходников: `pip install -e .` в этом каталоге (на PyPI его нет)
-- Сеть до `SPRUT_API_BASE` (по умолчанию `https://cloud.sprutmonitor.ru/v3`)
+- Путь к web-api серверу СпрутМонитор. Например: `https://cloud.sprutmonitor.ru/v3` или `http://192.168.1.8:82/MonitorServer/`
 
 | Хост | Статус |
 |------|--------|
@@ -25,7 +25,7 @@
 
 Корневой [../mcp.json](../mcp.json) вызывает `uvx sprutmonitor-mcp`. Так сервер запустится только после публикации на PyPI. До этого используйте примеры выше или запуск из каталога.
 
-Свой кабинет: [../examples/cursor-mcp-pypi-with-env.json](../examples/cursor-mcp-pypi-with-env.json). Подставьте почту и пароль, перезапустите MCP и спросите, кто вошёл.
+Свой кабинет: [../examples/cursor-mcp-pypi-with-env.json](../examples/cursor-mcp-pypi-with-env.json). Подставьте логин и пароль, перезапустите MCP и спросите, кто вошёл.
 
 ### Из исходников
 
@@ -53,25 +53,23 @@
 
 По умолчанию демо `demo@sprutmonitor.ru` / `demo`. Для своего кабинета:
 
-1. Возьмите оператора с урезанными правами в [кабинете](https://app.sprutmonitor.ru/).
+1. Возьмите ваш логин и пароль от аккаунта СпрутМонитор [app.sprutmonitor.ru](https://app.sprutmonitor.ru/) или логин и пароль дополнительного пользователя (вкладка Настройки — Доступ).
 2. Задайте переменные:
 
 | Переменная | Пример |
 |------------|--------|
-| `SPRUT_EMAIL` | `operator@example.com` |
+| `SPRUT_EMAIL` | логин аккаунта |
 | `SPRUT_PASSWORD` | пароль |
-| `SPRUT_API_BASE` | `https://cloud.sprutmonitor.ru/v3` или свой `serverBase` |
+| `SPRUT_API_BASE` | `https://cloud.sprutmonitor.ru/v3` или `http://192.168.1.8:82/MonitorServer/` |
 
 3. Лучше положить их в `env` JSON хоста, а не в репозиторий.
 4. Для запуска из исходников можно скопировать [../.env.example](../.env.example) в `.env` в рабочем каталоге процесса. `.env` не коммитить.
 
 Затем вызовите `sprutmonitor_whoami` и сверьте учётку с кабинетом.
 
-### Своя база API
+### Адрес web-api
 
-Облако: `https://cloud.sprutmonitor.ru/v3`. Локальная установка: целиком `serverBase` из `spm-config.json`, со схемой и префиксом вроде `/MonitorServer`. Пакет этот JSON не читает. Не подставляйте адрес сайта кабинета `app.sprutmonitor.ru`: логин идёт на базу API, а клиент сам добавляет `/api/...`.
-
-Демо-кабинет общий. Короткие запросы лучше, чем `fetch_all` и обход всех видов мониторинга.
+`SPRUT_API_BASE` — адрес web-api сервера СпрутМонитор, со схемой и префиксом (например `https://host:port/MonitorServer`). Облако: `https://cloud.sprutmonitor.ru/v3`. Своя установка: `http://192.168.1.8:82/MonitorServer/`.
 
 ## Первые вопросы
 

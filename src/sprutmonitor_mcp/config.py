@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     api_base: str = Field(
         default=DEFAULT_API_BASE,
-        description="Cloud API host (spm-config serverBase). Not the SPA origin.",
+        description="SprutMonitor web API address, including the cloud.",
     )
     email: str = Field(default=DEMO_EMAIL)
     password: str = Field(default=DEMO_PASSWORD)

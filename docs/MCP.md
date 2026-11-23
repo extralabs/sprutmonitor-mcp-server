@@ -1,6 +1,6 @@
 # Протокол MCP
 
-Сервер только на чтение для облака [СпрутМонитор](https://sprutmonitor.ru/). Руководства продукта и каталог REST: [sprutmonitor.ru/docs/](https://sprutmonitor.ru/docs/) и [app.sprutmonitor.ru/api/](https://app.sprutmonitor.ru/api/). Здесь только поверхность самого MCP.
+Сервер только на чтение для облака [СпрутМонитор](https://sprutmonitor.ru/). Руководства продукта и каталог REST: [sprutmonitor.ru/docs2/](https://sprutmonitor.ru/docs2/) и [app.sprutmonitor.ru/api/](https://app.sprutmonitor.ru/api/). Здесь только поверхность самого MCP.
 
 Транспорт: stdio по умолчанию или Streamable HTTP.
 

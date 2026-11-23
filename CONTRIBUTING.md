@@ -40,7 +40,7 @@ CI гоняет те же юнит-тесты на Python 3.10 и 3.12 с `SPRUT
 Не копируйте в репозиторий большие куски сайта и каталога `/api/`. Ссылайтесь на них и пишите только то, что нужно MCP.
 
 - https://sprutmonitor.ru/
-- https://sprutmonitor.ru/docs/
+- https://sprutmonitor.ru/docs2/
 - https://app.sprutmonitor.ru/
 - https://app.sprutmonitor.ru/api/
 

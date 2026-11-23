@@ -3,7 +3,7 @@
 Локальный MCP-сервер только на чтение для облака [СпрутМонитор](https://sprutmonitor.ru/). Cursor, Claude и VS Code могут спрашивать про риски, простой, продуктивность и мониторинг. Код основан на пакете octowatch-mcp 0.5.1 (лицензия MIT, см. [LICENSE](LICENSE)).
 
 - Сайт: [sprutmonitor.ru](https://sprutmonitor.ru/)
-- Документация продукта: [sprutmonitor.ru/docs/](https://sprutmonitor.ru/docs/)
+- Документация продукта: [sprutmonitor.ru/docs2/](https://sprutmonitor.ru/docs2/)
 - Кабинет: [app.sprutmonitor.ru](https://app.sprutmonitor.ru/)
 - Каталог API в кабинете: [app.sprutmonitor.ru/api/](https://app.sprutmonitor.ru/api/)
 - Код: [extralabs/sprutmonitor-mcp-server](https://github.com/extralabs/sprutmonitor-mcp-server)
@@ -14,9 +14,7 @@
 
 - Python 3.10+
 - Хост с MCP (Cursor, Claude Desktop, VS Code)
-- Сеть до базы API. По умолчанию `https://cloud.sprutmonitor.ru/v3`
-
-Клиент дописывает пути `/api/...` к этой базе. Префикс `/v3` должен остаться в базе, иначе логин уйдёт не туда.
+- Путь к web-api серверу СпрутМонитор. Например: `https://cloud.sprutmonitor.ru/v3` или `http://192.168.1.8:82/MonitorServer/`
 
 ## Быстрый старт
 
@@ -49,23 +47,19 @@ sprutmonitor-mcp
 
 После перезапуска хоста: «Кто я в СпрутМонитор?» или «Риски за последнюю неделю».
 
-Демо-кабинет общий. Не гоняйте по нему длинные циклы.
-
 ## Свой вход и локальная установка
-
-Облаку нужна учётка оператора кабинета. Пароли в репозиторий не кладутся: их передаёт хост через `env`.
 
 | Режим | Что задать |
 |-------|------------|
 | Демо | `demo@sprutmonitor.ru` / `demo` |
-| Свой кабинет | Почта и пароль оператора с урезанными правами |
-| Локальный сервер | `SPRUT_API_BASE` = значение `serverBase` из `spm-config.json`, со схемой и префиксом (например `https://host/MonitorServer`). Этот пакет файл `spm-config.json` не читает |
+| Свой кабинет | Ваш логин и пароль от аккаунта СпрутМонитор [app.sprutmonitor.ru](https://app.sprutmonitor.ru/) или логин и пароль дополнительного пользователя (вкладка Настройки — Доступ) |
+| Локальный сервер | `SPRUT_API_BASE` = адрес web-api сервера СпрутМонитор, со схемой и префиксом (например `https://host:port/MonitorServer`) |
 
 | Переменная | Смысл |
 |------------|--------|
-| `SPRUT_EMAIL` | Почта оператора |
+| `SPRUT_EMAIL` | Логин аккаунта |
 | `SPRUT_PASSWORD` | Пароль |
-| `SPRUT_API_BASE` | База API, если не публичное облако |
+| `SPRUT_API_BASE` | Адрес Web-api сервера СпрутМонитор, в т.ч. облако |
 
 Те же данные можно положить в `.env` рядом с рабочим каталогом процесса. Образец: [.env.example](.env.example). Проверка: инструмент `sprutmonitor_whoami`. Сверьте ответ с [кабинетом](https://app.sprutmonitor.ru/).
 
@@ -81,14 +75,12 @@ sprutmonitor-mcp
 
 ## Безопасность
 
-Демо-вход публичный. Боевые пароли не пишите в конфиг MCP и не коммитьте. Сервер ничего не изменяет в кабинете и не скачивает бинарные скриншоты и видео. Ответы tools могут содержать данные сотрудников: не выкладывайте их в открытые каналы. Подробнее: [SECURITY.md](SECURITY.md).
+Ответы tools могут содержать данные сотрудников: не выкладывайте их в открытые каналы. Подробнее: [SECURITY.md](SECURITY.md).
 
 ## Ограничения
 
-- Только чтение. Это не замена [кабинета](https://app.sprutmonitor.ru/).
+- Только чтение.
 - Нет скачивания бинарных скриншотов и видео, только метаданные потока.
-- Это не копия документации продукта и не полный каталог REST.
-- Биллинг, SMS и reCAPTCHA сюда не входят.
 
 ## Основные tools
 
@@ -130,9 +122,6 @@ sprutmonitor-mcp
 
 | Переменная | По умолчанию | Смысл |
 |------------|--------------|--------|
-| `SPRUT_API_BASE` | `https://cloud.sprutmonitor.ru/v3` | База API (`serverBase`) |
-| `SPRUT_EMAIL` | `demo@sprutmonitor.ru` | Оператор |
-| `SPRUT_PASSWORD` | `demo` | Только демо |
 | `SPRUT_DEFAULT_DAYS` | `1` | Глубина, если нет дат и `period` |
 | `SPRUT_TOOLSETS` | `all` | `all`, `core` или `console` (console включает core) |
 
@@ -143,7 +132,7 @@ sprutmonitor-mcp --transport streamable-http
 
 Второй вариант слушает `http://127.0.0.1:8000/mcp`.
 
-Период: `today`, `yesterday`, `last_7_days`, `last_30_days` либо `date_from` / `date_to`. Дата без времени — целый день, `date_to` заканчивается в `23:59:59`. В POST фильтр группы — `NodeType=14`, человека — `NodeType=1`. Число для человека берётся из поля `ID` узла с `Type=2` в `list_users_groups`. Поля `AliasID` в этом дереве нет: так называется тот же id уже в отчётах. `Type` дерева — не `NodeType`.
+Период: `today`, `yesterday`, `last_7_days`, `last_30_days` либо `date_from` / `date_to`. Дата без времени — целый день, `date_to` заканчивается в `23:59:59`. В POST фильтр группы — `NodeType=14`, человека — `NodeType=1`.
 
 ## Документация
 

@@ -28,20 +28,20 @@
     "properties": {
       "SPRUT_API_BASE": {
         "type": "string",
-        "title": "API base URL",
-        "description": "Cloud API host (serverBase). Leave default for public cloud.",
+        "title": "Web API address",
+        "description": "SprutMonitor web API address, including the cloud. Example: https://cloud.sprutmonitor.ru/v3 or http://192.168.1.8:82/MonitorServer/.",
         "default": "https://cloud.sprutmonitor.ru/v3"
       },
       "SPRUT_EMAIL": {
         "type": "string",
-        "title": "Console email",
-        "description": "Operator email. Demo default works for try-out; use your least-privilege operator for a real tenant.",
+        "title": "Account login",
+        "description": "Login for https://app.sprutmonitor.ru/, or an extra user from Settings - Access.",
         "default": "demo@sprutmonitor.ru"
       },
       "SPRUT_PASSWORD": {
         "type": "string",
-        "title": "Console password",
-        "description": "Operator password. Demo default is \"demo\". Never commit production passwords.",
+        "title": "Account password",
+        "description": "Password for the SprutMonitor account or extra user.",
         "default": "demo"
       }
     },

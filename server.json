@@ -21,14 +21,14 @@
       "environmentVariables": [
         {
           "name": "SPRUT_API_BASE",
-          "description": "Cloud API host (serverBase). Default: public cloud.",
+          "description": "SprutMonitor web API address, including the cloud. Example: https://cloud.sprutmonitor.ru/v3 or http://192.168.1.8:82/MonitorServer/.",
           "isRequired": false,
           "format": "string",
           "default": "https://cloud.sprutmonitor.ru/v3"
         },
         {
           "name": "SPRUT_EMAIL",
-          "description": "Console operator email. Demo default works for try-out.",
+          "description": "Account login for https://app.sprutmonitor.ru/, or an extra user from Settings - Access.",
           "isRequired": false,
           "format": "string",
           "isSecret": false,
@@ -36,7 +36,7 @@
         },
         {
           "name": "SPRUT_PASSWORD",
-          "description": "Console password. Use a least-privilege operator for real tenants.",
+          "description": "Account password.",
           "isRequired": false,
           "format": "string",
           "isSecret": true,

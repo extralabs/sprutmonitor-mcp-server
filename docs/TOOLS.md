@@ -2,7 +2,7 @@
 
 Аргументы и какой tool когда звать. Тот же маршрут отдаёт ресурс `sprutmonitor://tool-routing`. Если меняете инструкции в `server.py`, обновите и этот файл.
 
-Интерфейс и REST: [sprutmonitor.ru/docs/](https://sprutmonitor.ru/docs/) и [app.sprutmonitor.ru/api/](https://app.sprutmonitor.ru/api/). Ниже только MCP. Описания tools в коде на английском.
+Интерфейс и REST: [sprutmonitor.ru/docs2/](https://sprutmonitor.ru/docs2/) и [app.sprutmonitor.ru/api/](https://app.sprutmonitor.ru/api/). Ниже только MCP. Описания tools в коде на английском.
 
 ## Общие аргументы
 

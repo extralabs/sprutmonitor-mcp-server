@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from octowatch_mcp.client import OctoWatchClient
-from octowatch_mcp.config import Settings
+from sprutmonitor_mcp.client import SprutMonitorClient
+from sprutmonitor_mcp.config import Settings
 
 
 def test_users_groups_cached_until_refresh() -> None:
-    client = OctoWatchClient(Settings(api_base="https://example.test", email="a@b.c", password="x"))
+    client = SprutMonitorClient(
+        Settings(api_base="https://example.test", email="a@b.c", password="x")
+    )
     calls = {"n": 0}
 
     def fake_get(path: str, **kwargs):
@@ -33,7 +35,9 @@ def test_users_groups_cached_until_refresh() -> None:
 
 
 def test_login_invalidates_users_groups_cache() -> None:
-    client = OctoWatchClient(Settings(api_base="https://example.test", email="a@b.c", password="x"))
+    client = SprutMonitorClient(
+        Settings(api_base="https://example.test", email="a@b.c", password="x")
+    )
     client._users_groups_cache = {"Items": []}
     client._users_groups_cached_at = 1.0
     client.invalidate_users_groups_cache()

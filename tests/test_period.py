@@ -6,7 +6,7 @@ from datetime import datetime
 
 import pytest
 
-from octowatch_mcp.period import parse_datetime, resolve_named_period, resolve_tool_period
+from sprutmonitor_mcp.period import parse_datetime, resolve_named_period, resolve_tool_period
 
 
 def test_date_only_same_day_covers_full_day() -> None:

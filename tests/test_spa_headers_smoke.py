@@ -1,4 +1,4 @@
-"""Live smoke: SPA-aligned GET headers (skipped if OCTOWATCH_SKIP_LIVE=1)."""
+"""Live smoke: SPA-aligned GET headers (skipped if SPRUT_SKIP_LIVE=1)."""
 
 from __future__ import annotations
 
@@ -6,12 +6,12 @@ import os
 
 import pytest
 
-from octowatch_mcp.client import OctoWatchClient
+from sprutmonitor_mcp.client import SprutMonitorClient
 
 
-@pytest.mark.skipif(os.getenv("OCTOWATCH_SKIP_LIVE") == "1", reason="live API skipped")
+@pytest.mark.skipif(os.getenv("SPRUT_SKIP_LIVE") == "1", reason="live API skipped")
 def test_spa_aligned_gets() -> None:
-    with OctoWatchClient() as client:
+    with SprutMonitorClient() as client:
         client.login()
         alias_id = 1
 

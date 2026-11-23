@@ -1,66 +1,73 @@
-# API notes (MCP coverage audit)
+# Заметки по API
 
-**As of package `octowatch-mcp` 0.5.x.** This is an MCP **coverage audit** against the Cloud web console (read-only) — not a full REST/OpenAPI mirror.
+Снимок покрытия MCP для пакета `sprutmonitor-mcp` 0.5.x. Это аудит кабинета только на чтение, не полная копия REST.
 
-Canonical product / REST sources (prefer these for endpoint catalogs and UI how-to):
+Канонические источники:
 
-- Product: https://octowatchdlp.com/
-- Product docs: https://octowatchdlp.com/docs/
-- Web Console: https://app.octowatchdlp.com/
-- In-app API catalog: https://app.octowatchdlp.com/api/
-- Help catalog (secondary): https://cloud.octowatchdlp.com/Help
+- Сайт: https://sprutmonitor.ru/
+- Документация: https://sprutmonitor.ru/docs/
+- Кабинет: https://app.sprutmonitor.ru/
+- Каталог API в кабинете: https://app.sprutmonitor.ru/api/
 
-## Hosts
+## Хосты
 
-| URL | Role |
+| URL | Роль |
 |-----|------|
-| `https://octowatchdlp.com/` | Product home |
-| `https://octowatchdlp.com/docs/` | Product documentation |
-| `https://app.octowatchdlp.com/` | Web Console SPA |
-| `https://app.octowatchdlp.com/api/` | In-app API docs (SPA route) |
-| `https://cloud.octowatchdlp.com` | REST API (`spm-config.json` → `serverBase`) |
-| `https://cloud.octowatchdlp.com/Help` | ASP.NET Web API Help |
+| `https://sprutmonitor.ru/` | Сайт |
+| `https://sprutmonitor.ru/docs/` | Документация продукта |
+| `https://app.sprutmonitor.ru/` | Кабинет (SPA) |
+| `https://app.sprutmonitor.ru/api/` | Каталог API внутри кабинета |
+| `https://cloud.sprutmonitor.ru/v3` | База REST для облака. Клиент дописывает `/api/...` |
+| `serverBase` из `spm-config.json` | База локальной установки, со схемой и префиксом вроде `/MonitorServer` |
 
-## Auth
+Пакет `spm-config.json` не читает. Локальную базу задают через `SPRUT_API_BASE`.
+
+## Вход
 
 ```http
-GET /api/Access/login-jwt?email=demo%40octowatchdlp.com&password=demo
+GET /api/Access/login-jwt?email=demo%40sprutmonitor.ru&password=demo
 ```
 
-Response includes `Token`, `RefreshToken`, `ExpiresIn`, `PublicID`.
+Полный URL облака: `https://cloud.sprutmonitor.ru/v3/api/Access/login-jwt?...`.
+
+Ответ содержит `Token`, `RefreshToken`, `ExpiresIn`, `PublicID`.
 
 ```http
 GET /api/Access/refresh-token?refresh_Token=…&PublicID=…
-Authorization: Bearer <Token>   # on data calls
+Authorization: Bearer <Token>
 ```
 
-## Users / groups filter body (`TreeviewUsers`)
+Заголовок Bearer нужен на вызовах данных.
 
-Period POSTs send a JSON array. The server uses **`NodeType` + `UserID` only**.
+## Тело фильтра пользователей (`TreeviewUsers`)
+
+Периодные POST шлют JSON-массив. Сервер смотрит только на `NodeType` и `UserID`.
 
 ```json
 [{ "NodeType": -666666, "UserID": -666666 }]
 ```
 
-| NodeType | Meaning | UserID |
-|----------|---------|--------|
-| `-666666` | All users (root) | `-666666` |
-| `14` | Group | group id |
-| `1` | User | AliasID |
+| NodeType | Смысл | UserID |
+|----------|--------|--------|
+| `-666666` | Все | `-666666` |
+| `14` | Группа | id группы |
+| `1` | Пользователь | `ID` узла `Type=2` (в отчётах это `AliasID`) |
 
-**Do not confuse** with `GET /api/Edit/GetUsersGroups2` item fields:
+Это не поля `Type` у `GET /api/Edit/GetUsersGroups2`:
 
-| GetUsersGroups2 `Type` | Meaning |
-|------------------------|---------|
-| `0` | Root / all |
-| `1` | Group |
-| `2` | User |
+| Type в GetUsersGroups2 | Смысл |
+|------------------------|--------|
+| `0` | Корень |
+| `1` | Группа |
+| `2` | Пользователь |
 
-Those UI `Type` values are **not** POST `NodeType` values. MCP maps `group_id` → NodeType **14**, `user_id` → NodeType **1**. Both may be sent together (server ORs them).
+MCP кладёт `group_id` в NodeType 14, `user_id` в NodeType 1. Оба можно передать вместе: клиент рассчитан на то, что сервер объединяет их по ИЛИ.
 
-Wire JSON is **PascalCase** (`List`, `AliasID`, `InactiveTime`, `TotalRecords`). Overall2 wrappers typically expose `List` + paging fields (`TotalRecords`, `StartFrom`, `NumRecords`).
+`GetUsersGroups2` возвращает плоский `Items`. У узла нет `AliasID`. У человека (`Type=2`) идентификатор — `ID`, имя — `NameInner`. На демо этот `ID` совпал с `AliasID` в `Productivity/Overall3`. У группы (`Type=1`) поля `ID` и `GroupID` — разные числа. Какое из них подставлять в NodeType 14, по этому прогону не видно: сверьте с кабинетом, прежде чем фильтровать отчёты по группе.
 
-## Headers for period POSTs
+Отчёты Overall2 приходят в PascalCase: `List`, `AliasID`, `InactiveTime`, `TotalRecords`, плюс страница (`StartFrom`, `NumRecords`).
+
+## Заголовки периодных POST
 
 ```
 Authorization: Bearer <Token>
@@ -73,102 +80,101 @@ NumRows: 100
 HideHidden: False
 ```
 
-Optional: `FilterKey`, `FilterObjects` (URL-encoded). Screens also use `Videos` / `Screens` / `ScreenType`.
+Необязательно: `FilterKey`, `FilterObjects` (URL-encoded). У экранов ещё `Videos`, `Screens`, `ScreenType`.
 
-**MCP date rule:** date-only `YYYY-MM-DD` for `date_to` is sent as end of day `23:59:59`.
+Правило MCP: `date_to` вида `YYYY-MM-DD` уходит как конец дня `23:59:59`.
 
-## Coverage matrix (console vs MCP)
+## Матрица покрытия
 
-Status values:
+| Статус | Смысл |
+|--------|--------|
+| `covered` | Есть tool, ответ полный или уже структурирован |
+| `covered_compact` | Есть tool, по умолчанию ответ урезан |
+| `out_of_scope_write` | Запись кабинета, в MCP только чтение её нет |
+| `out_of_scope_binary` | Скачивание файла или живые кадры |
+| `out_of_scope_not_in_console` | Есть на бэкенде, текущий кабинет этим не пользуется |
+| `intentional_skip` | Чтение есть, но агенту отдавать опасно (например PIN) |
 
-| Status | Meaning |
-|--------|---------|
-| `covered` | Available via MCP tool (full or structured) |
-| `covered_compact` | Available; default response truncated / blobs stripped |
-| `out_of_scope_write` | Console mutate — not in read-only MCP |
-| `out_of_scope_binary` | Binary/media download or live frames |
-| `out_of_scope_not_in_console` | On Help/backend but not used by current SPA |
-| `intentional_skip` | Read-only but unsafe for agents (e.g. PIN) |
+| Область | Endpoint | Tool | Статус |
+|---------|----------|------|--------|
+| Вход | `GET /api/Access/login-jwt` | `sprutmonitor_whoami` | covered |
+| Вход | `GET /api/Access/refresh-token` | клиент | covered |
+| Справочник | `GET /api/Edit/GetUsersGroups2` | `list_users_groups` / `list_directory` | covered |
+| Справочник | `GetUsers` / `GetGroups` / `GetListGroups` / `GetComputers2` | `list_directory` | covered |
+| Справочник | `GetAdditionalUsers` / `GetAdditionalUsersRights` | `list_directory` | covered |
+| Справочник | создание, переименование, перенос, удаление, слияние | — | out_of_scope_write |
+| Риски | `POST /api/Risks/Overall2` | `list_risks` | covered_compact |
+| Алерты | `POST /api/Alerts/Overall2` | `list_anomalies` | covered_compact |
+| Риски и алерты | ShowHide / SetMarker2 / RemoveRecord2 / AddAIBlackList | — | out_of_scope_write |
+| Активность | `POST /api/Activity/Overall2` | `get_activity_summary` | covered_compact |
+| Активность | `ActivityWindow` / `CategoryWindow` | `get_activity_detail` | covered_compact |
+| Хронометраж | `POST /api/Chrono/Overall2` | `get_chrono` | covered_compact |
+| Табель | `POST /api/TimeSheet/Overall2` | `get_timesheet` | covered_compact |
+| Табель | SetComment / RemoveComment | — | out_of_scope_write |
+| Продуктивность | `Overall3` / `GetStats` | `get_productivity_summary` / `get_idle_summary` | covered_compact |
+| Продуктивность | `DayStructureList` / `GetDayStructure` | `get_day_structure` | covered |
+| Продуктивность | `GetDashboardMetric1` | `get_dashboard`, виджет `metric1` | covered |
+| Аналитика | `Overall` / `GetDisciplina` / `GetActivity` / `GetProductivity` | `get_analytics` | covered |
+| Дашборд | виджеты `Dashboard/Get*` | `get_dashboard` | covered_compact |
+| Мониторинг | `POST /api/Monitoring/{Sites,Apps,…}` | `list_monitoring` | covered_compact |
+| Мониторинг | поиск Tools Search (`FilterKey` и `FilterObjects` по видам) | `search_monitoring` | covered_compact |
+| Медиа мониторинга | бинарные скриншоты, буфер, файлы, печать, камера | — | out_of_scope_binary |
+| Онлайн | `POST /api/Live/Overall2` | `list_online` | covered |
+| Онлайн | живая камера, LiveStream, VNC, удалённое управление | — | out_of_scope_binary |
+| Поток | `WhichContentExists` / `GetVideos` / `GetDownloads` | `list_stream_meta` | covered |
+| Поток | `GetVideoWithSeek` / `DownloadVideo` / `ExportVideo` | — | out_of_scope_binary |
+| Пользователи | `GetUserData2` / tooltip / `GetGroup` / `GetComputer` / `GetUsersFromComputer` | `get_user_info` | covered |
+| Учётка | профили, график, правила, настройки, категории, Get50*, цена, число пользователей | `get_account_readonly` | covered |
+| Учётка | `getlicenseinfo-jwt` / `getlicenseinfo-expired-jwt` / `getlicenseinfo-support-jwt` | — | out_of_scope_not_in_console |
+| Учётка | `GetUninstallPin1` | — | intentional_skip |
+| Учётка | Set* / RecalcProductivity / PostCategories | — | out_of_scope_write |
+| Отчёты | `GetReports` и `GetProcessingTasks` | `list_reports` / `get_account_readonly` | covered |
+| Отчёты | `QueueReportEmail` / `SetReports` | — | out_of_scope_write |
+| Прочее | CustomReports / Geo / Archive / старый XML Overall | — | out_of_scope_not_in_console |
+| Биллинг | `Pay/*` | — | out_of_scope_write |
+| Мета | эта матрица | `list_api_coverage` | covered |
 
-| Console area | Endpoint | MCP tool | Status |
-|--------------|----------|----------|--------|
-| Auth | `GET /api/Access/login-jwt` | `octowatch_whoami` | covered |
-| Auth | `GET /api/Access/refresh-token` | (client) | covered |
-| Directory | `GET /api/Edit/GetUsersGroups2` | `list_users_groups` / `list_directory` | covered |
-| Directory | `GetUsers` / `GetGroups` / `GetListGroups` / `GetComputers2` | `list_directory` | covered |
-| Directory | `GetAdditionalUsers` / `GetAdditionalUsersRights` | `list_directory` | covered |
-| Directory | New/Rename/Move/Remove/Merge users & groups | — | out_of_scope_write |
-| Risks | `POST /api/Risks/Overall2` | `list_risks` | covered_compact |
-| Alerts | `POST /api/Alerts/Overall2` | `list_anomalies` | covered_compact |
-| Risks/Alerts | ShowHide / SetMarker2 / RemoveRecord2 / AddAIBlackList | — | out_of_scope_write |
-| Activity | `POST /api/Activity/Overall2` | `get_activity_summary` | covered_compact |
-| Activity | `ActivityWindow` / `CategoryWindow` | `get_activity_detail` | covered_compact |
-| Chrono | `POST /api/Chrono/Overall2` | `get_chrono` | covered_compact |
-| TimeSheet | `POST /api/TimeSheet/Overall2` | `get_timesheet` | covered_compact |
-| TimeSheet | SetComment / RemoveComment | — | out_of_scope_write |
-| Productivity | `Overall3` / `GetStats` | `get_productivity_summary` / `get_idle_summary` | covered_compact |
-| Productivity | `DayStructureList` / `GetDayStructure` | `get_day_structure` | covered |
-| Productivity | `GetDashboardMetric1` | `get_dashboard` widget=`metric1` | covered |
-| Analytics | `Overall` / `GetDisciplina` / `GetActivity` / `GetProductivity` | `get_analytics` | covered |
-| Dashboard | `Dashboard/Get*` widgets | `get_dashboard` | covered_compact |
-| Monitoring | `POST /api/Monitoring/{Sites,Apps,…}` | `list_monitoring` | covered_compact |
-| Monitoring | Tools → Search fan-out (`FilterKey` + per-kind `FilterObjects`) | `search_monitoring` | covered_compact |
-| Monitoring media | Screenshots / Clipboard / Files / Prints / Webcam Get* binaries | — | out_of_scope_binary |
-| Online | `POST /api/Live/Overall2` | `list_online` | covered |
-| Online | Live webcam / LiveStream / VNC / RemoteControl | — | out_of_scope_binary |
-| Stream | `WhichContentExists` / `GetVideos` / `GetDownloads` | `list_stream_meta` | covered |
-| Stream | `GetVideoWithSeek` / `DownloadVideo` / `ExportVideo` | — | out_of_scope_binary |
-| Users | `GetUserData2` / tooltip / `GetGroup` / `GetComputer` / `GetUsersFromComputer` | `get_user_info` | covered |
-| Account | Profiles / timetable / rules / settings / categories / Get50* / price / license / num users | `get_account_readonly` | covered |
-| Account | `GetUninstallPin1` | — | intentional_skip |
-| Account | Set* / RecalcProductivity / PostCategories / … | — | out_of_scope_write |
-| Reports | `GetReports` + `GetProcessingTasks` | `list_reports` / `get_account_readonly` | covered |
-| Reports | `QueueReportEmail` / `SetReports` | — | out_of_scope_write |
-| Other | CustomReports / Geo / Archive / legacy XML Overall | — | out_of_scope_not_in_console |
-| Billing | `Pay/*` | — | out_of_scope_write |
-| Meta | (this matrix) | `list_api_coverage` | covered |
+Биллинг, SMS и reCAPTCHA в сервер не входят.
 
-### Risks summary behavior
+### Сводка рисков
 
-- `by_user`: from `Analytics/Overall` (accurate totals without paging all risk rows).
-- `by_rule` / `by_day` / `sample`: from one `Risks/Overall2` page unless `fetch_all=true` (cap 2000).
+- `by_user` из `Analytics/Overall`: итоги без перелистывания всех строк.
+- `by_rule`, `by_day`, `sample` с одной страницы `Risks/Overall2`, пока `fetch_all` не включён (потолок 2000).
 
-### Idle vs anomalies
+### Простой и алерты
 
-- **Idle duration** → productivity `InactiveTime` (`get_idle_summary`).
-- **Formal deviations** → `Alerts/Overall2` (`list_anomalies`). Empty Alerts with a 24h timetable is expected.
+- Длительность простоя — `InactiveTime` продуктивности, tool `get_idle_summary`.
+- Формальные отклонения — `Alerts/Overall2`, tool `list_anomalies`. Пустые алерты на круглосуточном графике ожидаемы.
 
-### Payload guards
+### Объём ответа
 
-MCP defaults: `limit` ≤ 100 (hard cap 500), `compact=true` strips blob-like fields and truncates long text (keystrokes, mail bodies, OCR).
+По умолчанию `limit` не больше 100 (жёсткий потолок 500). `compact=true` срезает поля-блобы и длинный текст (клавиши, тела писем, OCR).
 
-## SPA header contracts (aligned)
+## Заголовки, которые кабинет шлёт не как периодный POST
 
-These differ from the usual period POST + TreeviewUsers pattern:
-
-| Endpoint | Method | Required headers |
-|----------|--------|------------------|
+| Endpoint | Метод | Заголовки |
+|----------|--------|-----------|
 | `Edit/GetUserData2` | GET | `DateFrom`, `DateTo`, `AliasID` |
 | `Edit/GetUserDetailsForToolTip` | GET | `AliasID` |
-| `Edit/GetGroup` | GET | `AliasID` (group *path* for that user) |
+| `Edit/GetGroup` | GET | `AliasID` (путь группы этого пользователя) |
 | `Edit/GetComputer` / `GetUsersFromComputer` | GET | `ComputerGuid` |
 | `Productivity/GetDayStructure` | GET | `UserID`, `DateFrom`, `DateTo`, `ProductivityFilter`, `ActivityTypeFilter` |
-| `Account/GetProfiles2` | GET | `ProfilesType`, `AliasID`, `AliasType` (defaults `-1`) |
+| `Account/GetProfiles2` | GET | `ProfilesType`, `AliasID`, `AliasType` (по умолчанию `-1`) |
 | `Account/GetProfileTimeTable` | GET | `ProfileTimeTableID` |
 | `Account/GetProfileRules2` | GET | `ProfileRulesID` |
 | `Account/GetProfileSettings` | GET | `ProfileSettingsID` |
 | `Account/GetProfileComputerSettings` | GET | `ProfileComputerSettingsID` |
-| `Account/GetComputerProfiles` | GET | optional `Guid` |
-| `Stream/WhichContentExists` | GET | `AliasID`, `DateTime` (raw int body) |
+| `Account/GetComputerProfiles` | GET | необязательный `Guid` |
+| `Stream/WhichContentExists` | GET | `AliasID`, `DateTime` (тело — голое число) |
 | `Stream/GetVideos` | GET | `DateFrom`, `DateTo`, `UserID` |
-| `Stream/GetDownloads` | GET | Bearer only |
+| `Stream/GetDownloads` | GET | только Bearer |
 
-### Tools → Search (`search_monitoring`)
+### Поиск (`search_monitoring`)
 
-Same fan-out as the console: parallel Monitoring POSTs with `FilterKey` and default `FilterObjects`:
+Тот же веер, что у кабинета: параллельные POST мониторинга с `FilterKey` и `FilterObjects` по умолчанию.
 
-| Kind | FilterObjects |
-|------|---------------|
+| Вид | FilterObjects |
+|-----|----------------|
 | Sites | `url,wt` |
 | Apps | `app,wt` |
 | Keystrokes | `app,keystrokestext` |
@@ -179,13 +185,10 @@ Same fan-out as the console: parallel Monitoring POSTs with `FilterKey` and defa
 | WebcamAudio | `ar,wt` |
 | Files | `files_file` |
 | Prints | `prints_file` |
-| Installs | _(none)_ |
-| NetworkInterfaces | _(none)_ |
+| Installs | нет |
+| NetworkInterfaces | нет |
 | WebForms | `url` |
 
-Not included (same as SPA): SearchQueries, Risks, Crawler, USBExplorer, Traffic*.
+Как и кабинет, поиск не включает SearchQueries, Risks, Crawler, USBExplorer и Traffic*.
 
-## Demo tree (sample)
-
-Groups: Managers, Accounting, Management, Production, Warehouse.  
-Users include Accountant Emily Carter (`AliasID` 4), Madison Harris (1), Cooper Sullivan (2), Tyler Benson (3), Jackson T.R. (5), Hudson Blake (6).
+Состав демо-дерева смотрите через `list_users_groups`: имена в публичном демо могут меняться.

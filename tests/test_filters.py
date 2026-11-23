@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from octowatch_mcp.compact import compact_api_payload
-from octowatch_mcp.filters import (
+from sprutmonitor_mcp.compact import compact_api_payload
+from sprutmonitor_mcp.filters import (
     NODE_ALL,
     NODE_GROUP,
     NODE_USER,

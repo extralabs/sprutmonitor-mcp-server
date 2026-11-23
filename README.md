@@ -1,251 +1,167 @@
-# OctoWatch DLP MCP Server
+# MCP-сервер СпрутМонитор
 
-PyPI package: [`octowatch-mcp`](https://pypi.org/project/octowatch-mcp/) · product: [octowatchdlp.com](https://octowatchdlp.com/) (not related to other products named “OctoWatch”).
+Локальный MCP-сервер только на чтение для облака [СпрутМонитор](https://sprutmonitor.ru/). Cursor, Claude и VS Code могут спрашивать про риски, простой, продуктивность и мониторинг. Код основан на пакете octowatch-mcp 0.5.1 (лицензия MIT, см. [LICENSE](LICENSE)).
 
-[![PyPI](https://img.shields.io/pypi/v/octowatch-mcp.svg)](https://pypi.org/project/octowatch-mcp/)
-[![Python](https://img.shields.io/pypi/pyversions/octowatch-mcp.svg)](https://pypi.org/project/octowatch-mcp/)
-[![CI](https://github.com/extralabs/octowatch-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/extralabs/octowatch-mcp-server/actions/workflows/ci.yml)
-[![MCP](https://img.shields.io/badge/MCP-server-6001D2)](https://modelcontextprotocol.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+- Сайт: [sprutmonitor.ru](https://sprutmonitor.ru/)
+- Документация продукта: [sprutmonitor.ru/docs/](https://sprutmonitor.ru/docs/)
+- Кабинет: [app.sprutmonitor.ru](https://app.sprutmonitor.ru/)
+- Каталог API в кабинете: [app.sprutmonitor.ru/api/](https://app.sprutmonitor.ru/api/)
+- Код: [extralabs/sprutmonitor-mcp-server](https://github.com/extralabs/sprutmonitor-mcp-server)
 
-[![Install in Cursor](https://img.shields.io/badge/Cursor-Install_Server-000000?style=flat-square&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=octowatch&config=eyJjb21tYW5kIjoib2N0b3dhdGNoLW1jcCIsImVudiI6eyJPQ1RPV0FUQ0hfQVBJX0JBU0UiOiJodHRwczovL2Nsb3VkLm9jdG93YXRjaGRscC5jb20iLCJPQ1RPV0FUQ0hfRU1BSUwiOiJkZW1vQG9jdG93YXRjaGRscC5jb20iLCJPQ1RPV0FUQ0hfUEFTU1dPUkQiOiJkZW1vIn19)
-[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=octowatch&config=%7B%22command%22%3A%22octowatch-mcp%22%2C%22env%22%3A%7B%22OCTOWATCH_API_BASE%22%3A%22https%3A%2F%2Fcloud.octowatchdlp.com%22%2C%22OCTOWATCH_EMAIL%22%3A%22demo%40octowatchdlp.com%22%2C%22OCTOWATCH_PASSWORD%22%3A%22demo%22%7D%7D)
-[![Install in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install_Server-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=octowatch&config=%7B%22command%22%3A%22octowatch-mcp%22%2C%22env%22%3A%7B%22OCTOWATCH_API_BASE%22%3A%22https%3A%2F%2Fcloud.octowatchdlp.com%22%2C%22OCTOWATCH_EMAIL%22%3A%22demo%40octowatchdlp.com%22%2C%22OCTOWATCH_PASSWORD%22%3A%22demo%22%7D%7D&quality=insiders)
+Пакет на PyPI не опубликован. Ставится из этого каталога. Сервер ходит в облако сам, отдельного удалённого MCP нет.
 
-Read-only [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for **[OctoWatch DLP Cloud](https://octowatchdlp.com/)** employee monitoring and data-loss prevention — ask Cursor, Claude, or VS Code about risks, idle time, productivity, and monitoring in plain language.
+## Требования
 
-<!-- mcp-name: io.github.extralabs/octowatch-mcp -->
+- Python 3.10+
+- Хост с MCP (Cursor, Claude Desktop, VS Code)
+- Сеть до базы API. По умолчанию `https://cloud.sprutmonitor.ru/v3`
 
-- Product: [octowatchdlp.com](https://octowatchdlp.com/)
-- Product docs: [octowatchdlp.com/docs/](https://octowatchdlp.com/docs/)
-- Web Console: [app.octowatchdlp.com](https://app.octowatchdlp.com/)
-- In-app API catalog: [app.octowatchdlp.com/api/](https://app.octowatchdlp.com/api/)
+Клиент дописывает пути `/api/...` к этой базе. Префикс `/v3` должен остаться в базе, иначе логин уйдёт не туда.
 
-Python MCP SDK **v2** (`MCPServer`). Built for SecOps and managers — open-source companion to the OctoWatch console.
-
-**Contents:** [Status](#status) · [Where to find us](#where-to-find-us) · [Prerequisites](#prerequisites) · [Example questions](#example-questions) · [Security](#security--privacy) · [Limitations](#limitations) · [Quick start](#quick-start-pypi) · [Your account](#your-account-email--password) · [Tools](#core-tools) · [Configuration](#configuration) · [Documentation](#documentation) · [Contributing](#contributing)
-
-## Status
-
-**Alpha** (`v0.5.1`). APIs and tool shapes may change; pin a PyPI version in production configs.
-
-Tool failures return MCP `is_error` (`ToolError`). All tools advertise `read_only_hint`.
-
-## Where to find us
-
-The MCP runs **locally** (no ExtrLabs-hosted MCP). Catalogs point at PyPI / GitHub; you supply Cloud login via env.
-
-| Channel | Link |
-|---------|------|
-| PyPI | [octowatch-mcp](https://pypi.org/project/octowatch-mcp/) |
-| Official MCP Registry | [`io.github.extralabs/octowatch-mcp`](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.extralabs/octowatch-mcp) |
-| GitHub | [extralabs/octowatch-mcp-server](https://github.com/extralabs/octowatch-mcp-server) |
-| Cursor Marketplace | Plugin manifest [`.cursor-plugin`](.cursor-plugin/plugin.json) — [publish form](https://cursor.com/marketplace/publish) (manual review) |
-| Directories | [Glama](https://glama.ai/) · [mcpservers.org](https://mcpservers.org/) · [mcpfind.org](https://mcpfind.org/) · [mcpmarket.com](https://mcpmarket.com/) · [PulseMCP](https://www.pulsemcp.com/) · [awesome-mcp-servers#13003](https://github.com/punkpeye/awesome-mcp-servers/pull/13003) (mcp.so skipped — paid) |
-| cursor.directory | Open Plugins: root [`.mcp.json`](.mcp.json) + [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) — re-submit after these are on `main` |
-
-Directory / Marketplace maintainer notes: [docs/distribution.md](docs/distribution.md).
-
-## Prerequisites
-
-- Python **3.10+**
-- An MCP-capable host (Cursor, Claude Desktop, VS Code, …)
-- Network access to your Cloud API host (default `https://cloud.octowatchdlp.com`)
-
-## Example questions
-
-- “Which **Risks** in the last day?”
-- “Who was idle the longest yesterday?”
-- “Productivity summary for Accounting”
-- “Show Monitoring keystrokes for Emily”
-- “Find keyword `invoice` across monitoring last week”
-- “List users and groups”
-
-### Short scenarios
-
-| Goal | Ask something like… |
-|------|---------------------|
-| DLP / policy hits | “Summarize risks for today by user and rule” |
-| Idle time (not formal alerts) | “Who was idle more than 2 hours yesterday?” |
-| Top apps/sites | “Top applications for group Accounting last 7 days” |
-| Keyword hunt | “Search monitoring for `confidential` last 30 days” |
-| Directory | “List users and groups, then show info for AliasID 4” |
-
-## Security & privacy
-
-> Defaults use the public **demo** account.  
-> **Do not put production passwords in MCP config or git.** Use env vars and a least-privilege console operator.  
-> No writes, no screenshot/video binary downloads.
-
-Monitoring responses can contain sensitive employee data (activity, keystrokes snippets, mail metadata). Treat tool output as confidential. Full policy: [SECURITY.md](SECURITY.md).
-
-## Limitations
-
-- **Read-only** — not a full console replacement ([Web Console](https://app.octowatchdlp.com/))
-- No screenshot/video **binary** downloads (stream **metadata** only)
-- Not a mirror of product docs or the REST catalog — those stay at [docs](https://octowatchdlp.com/docs/) and [/api/](https://app.octowatchdlp.com/api/)
-- Alpha — expect breaking changes between minors until 1.0
-
-## Quick start (PyPI)
-
-Use the **Install** badges at the top of this README (Cursor / VS Code; demo credentials). First ensure the CLI is available:
+## Быстрый старт
 
 ```bash
-pip install octowatch-mcp
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+pip install -e .
+sprutmonitor-mcp
 ```
 
-Or configure manually — example for Cursor / Claude-style `mcpServers` (demo credentials):
+Пример для Cursor (демо-вход):
 
 ```json
 {
   "mcpServers": {
-    "octowatch": {
-      "command": "octowatch-mcp",
+    "sprutmonitor": {
+      "command": "sprutmonitor-mcp",
       "env": {
-        "OCTOWATCH_API_BASE": "https://cloud.octowatchdlp.com",
-        "OCTOWATCH_EMAIL": "demo@octowatchdlp.com",
-        "OCTOWATCH_PASSWORD": "demo"
+        "SPRUT_API_BASE": "https://cloud.sprutmonitor.ru/v3",
+        "SPRUT_EMAIL": "demo@sprutmonitor.ru",
+        "SPRUT_PASSWORD": "demo"
       }
     }
   }
 }
 ```
 
-Ready-made files: [examples/cursor-mcp-pypi.json](examples/cursor-mcp-pypi.json), [examples/claude-desktop-pypi.json](examples/claude-desktop-pypi.json). Per-host steps: [docs/hosts.md](docs/hosts.md).
+Готовые файлы: [examples/cursor-mcp-pypi.json](examples/cursor-mcp-pypi.json), [examples/claude-desktop-pypi.json](examples/claude-desktop-pypi.json). Запуск из исходников без установки команды в PATH: [examples/cursor-mcp.json](examples/cursor-mcp.json) (`python -m sprutmonitor_mcp` и свой `cwd`). Шаги по хостам: [docs/hosts.md](docs/hosts.md).
 
-Restart the host, then try: *“Using OctoWatch, who am I logged in as?”* or *“List risks for the last week.”*
+После перезапуска хоста: «Кто я в СпрутМонитор?» или «Риски за последнюю неделю».
 
-Demo credentials work without a `.env`. Be gentle with the shared demo tenant (avoid aggressive agent loops).
+Демо-кабинет общий. Не гоняйте по нему длинные циклы.
 
-### From source
+## Свой вход и локальная установка
 
-```bash
-git clone https://github.com/extralabs/octowatch-mcp-server.git
-cd octowatch-mcp-server
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
-pip install -e .
-cp .env.example .env   # optional
-python -m octowatch_mcp
-```
+Облаку нужна учётка оператора кабинета. Пароли в репозиторий не кладутся: их передаёт хост через `env`.
 
-Use [examples/cursor-mcp.json](examples/cursor-mcp.json) / [examples/claude-desktop.json](examples/claude-desktop.json) and set `cwd` to your clone (Windows: `D:\\path\\to\\octowatch-mcp-server`).
+| Режим | Что задать |
+|-------|------------|
+| Демо | `demo@sprutmonitor.ru` / `demo` |
+| Свой кабинет | Почта и пароль оператора с урезанными правами |
+| Локальный сервер | `SPRUT_API_BASE` = значение `serverBase` из `spm-config.json`, со схемой и префиксом (например `https://host/MonitorServer`). Этот пакет файл `spm-config.json` не читает |
 
-### ChatGPT and other hosts
+| Переменная | Смысл |
+|------------|--------|
+| `SPRUT_EMAIL` | Почта оператора |
+| `SPRUT_PASSWORD` | Пароль |
+| `SPRUT_API_BASE` | База API, если не публичное облако |
 
-There is **no** single public ChatGPT JSON config we ship yet — ChatGPT / similar products often use **remote** MCP connectors rather than a local `command` stdio process.
+Те же данные можно положить в `.env` рядом с рабочим каталогом процесса. Образец: [.env.example](.env.example). Проверка: инструмент `sprutmonitor_whoami`. Сверьте ответ с [кабинетом](https://app.sprutmonitor.ru/).
 
-- For local desktop agents, prefer **Cursor**, **Claude Desktop**, or **VS Code** with the examples above.
-- If your host supports custom MCP over HTTP, you can run `octowatch-mcp --transport streamable-http` (localhost only by default) and register that endpoint per the host’s docs — see [docs/hosts.md](docs/hosts.md#chatgpt-and-other-hosts).
+## Примеры вопросов
 
-## Your account (email / password)
+- Какие риски за последний день?
+- Кто дольше всех простаивал вчера?
+- Продуктивность отдела за 7 дней
+- Найти слово в мониторинге за неделю
+- Список пользователей и групп
 
-OctoWatch Cloud still needs a console login. The MCP does **not** store passwords for you — the host passes them as process env.
+Простой — это `get_idle_summary`, а не `list_anomalies`. Формальные отклонения (опоздания, переработки) — `list_anomalies`. Поиск по ключевому слову — `search_monitoring`, а не цикл по `list_monitoring`.
 
-| Mode | What to set |
-|------|-------------|
-| **Demo (try-out)** | Defaults / Install badges: `demo@octowatchdlp.com` / `demo` |
-| **Your tenant** | Your least-privilege operator email + password in MCP `env` (or Cursor plugin **Configure**) |
+## Безопасность
 
-| Variable | Meaning |
-|----------|---------|
-| `OCTOWATCH_EMAIL` | Console operator email |
-| `OCTOWATCH_PASSWORD` | Console password (`isSecret` in Registry metadata) |
-| `OCTOWATCH_API_BASE` | Cloud API host if not the default public cloud |
+Демо-вход публичный. Боевые пароли не пишите в конфиг MCP и не коммитьте. Сервер ничего не изменяет в кабинете и не скачивает бинарные скриншоты и видео. Ответы tools могут содержать данные сотрудников: не выкладывайте их в открытые каналы. Подробнее: [SECURITY.md](SECURITY.md).
 
-**Recommended:** put them in the MCP host JSON `env` block — [examples/cursor-mcp-pypi-with-env.json](examples/cursor-mcp-pypi-with-env.json) / [examples/claude-desktop-pypi-with-env.json](examples/claude-desktop-pypi-with-env.json). Cursor plugin variables: [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json).
+## Ограничения
 
-Alternatively, for a source install, copy `.env.example` → `.env` next to the process working directory.
+- Только чтение. Это не замена [кабинета](https://app.sprutmonitor.ru/).
+- Нет скачивания бинарных скриншотов и видео, только метаданные потока.
+- Это не копия документации продукта и не полный каталог REST.
+- Биллинг, SMS и reCAPTCHA сюда не входят.
 
-Never commit real passwords. Verify the same data in the [Web Console](https://app.octowatchdlp.com/). Walkthrough: [docs/hosts.md](docs/hosts.md#your-own-login).
+## Основные tools
 
-## Core tools
+Имена на латинице. Описание, по которому модель выбирает tool, в коде на английском.
 
-| Tool | Cloud area | Notes |
-|------|------------|--------|
-| `octowatch_whoami` | Auth session | Account / host (no password) |
-| `list_users_groups` | Directory tree | Type 0 root, 1 group, 2 user |
-| `list_risks` | Risks + Analytics | Default `mode=summary` |
-| `list_anomalies` | Alerts | Formal deviations (not idle) |
-| `get_idle_summary` | Productivity | Rank by `InactiveTime` |
-| `get_activity_summary` | Activity | Top apps/sites |
-| `get_timesheet` | TimeSheet | Worked vs expected hours |
-| `get_productivity_summary` | Productivity + analytics | Per-user rollup |
-| `list_reports` | Reports | Scheduled + processing tasks |
+| Tool | Область | Заметка |
+|------|---------|---------|
+| `sprutmonitor_whoami` | Сессия | Хост и учётка, без пароля |
+| `list_users_groups` | Дерево | Плоский список `Items`. Type 0 корень, 1 группа, 2 человек. Id человека — поле `ID` |
+| `list_risks` | Риски | По умолчанию `mode=summary` |
+| `list_anomalies` | Алерты | Формальные отклонения, не простой |
+| `get_idle_summary` | Продуктивность | Ранг по `InactiveTime` |
+| `get_activity_summary` | Активность | Топ программ и сайтов |
+| `get_timesheet` | Табель | Факт против графика |
+| `get_productivity_summary` | Продуктивность | Сводка по людям |
+| `list_reports` | Отчёты | Расписание и очередь |
 
-## Console coverage tools
+## Tools кабинета
 
-| Tool | Cloud area | Notes |
-|------|------------|--------|
-| `get_analytics` | Analytics | `view=overall\|disciplina\|activity\|productivity` |
-| `get_dashboard` | Dashboard | Widgets; blobs stripped |
-| `get_chrono` | Chrono | Timeline |
-| `get_day_structure` | Day structure | `list` or `detail` |
-| `list_monitoring` | Monitoring | One kind; compact by default |
-| `search_monitoring` | Tools → Search | `filter_key` across kinds |
-| `get_activity_detail` | Activity window | Drill-down |
-| `list_online` | Live | Presence only |
-| `list_stream_meta` | Stream | Metadata only |
-| `list_directory` | Edit Get\* | users/groups/computers/… |
-| `get_user_info` | User card | AliasID / computer |
-| `get_account_readonly` | Account Get\* | No Set\*/PIN |
-| `list_api_coverage` | (static) | Gap summary |
+| Tool | Область | Заметка |
+|------|---------|---------|
+| `get_analytics` | Аналитика | `view=overall\|disciplina\|activity\|productivity` |
+| `get_dashboard` | Дашборд | Виджеты, крупные поля срезаются |
+| `get_chrono` | Хронометраж | Лента |
+| `get_day_structure` | Структура дня | `list` или `detail` |
+| `list_monitoring` | Мониторинг | Один вид таблицы |
+| `search_monitoring` | Поиск | `filter_key` по нескольким видам |
+| `get_activity_detail` | Окно активности | Детализация |
+| `list_online` | Онлайн | Только присутствие |
+| `list_stream_meta` | Поток | Только метаданные |
+| `list_directory` | Справочники | Пользователи, группы, компьютеры |
+| `get_user_info` | Карточка | `user_id` — `ID` человека из дерева |
+| `get_account_readonly` | Настройки Get* | Без записи и без PIN |
+| `list_api_coverage` | Матрица | Что покрыто и что сознательно не входит |
 
-Full arguments, routing, and scenarios: [docs/TOOLS.md](docs/TOOLS.md).  
-MCP prompts/resources: [docs/MCP.md](docs/MCP.md).
+Аргументы и маршрутизация: [docs/TOOLS.md](docs/TOOLS.md). Протокол: [docs/MCP.md](docs/MCP.md).
 
-## Configuration
+## Конфигурация
 
-| Env | Default | Meaning |
-|-----|---------|---------|
-| `OCTOWATCH_API_BASE` | `https://cloud.octowatchdlp.com` | API host (`serverBase`) |
-| `OCTOWATCH_EMAIL` | `demo@octowatchdlp.com` | Console operator |
-| `OCTOWATCH_PASSWORD` | `demo` | **Demo only** by default |
-| `OCTOWATCH_DEFAULT_DAYS` | `1` | Lookback when tools omit dates/period |
-| `OCTOWATCH_TOOLSETS` | `all` | `all` \| `core` \| `console` (console includes core) |
+| Переменная | По умолчанию | Смысл |
+|------------|--------------|--------|
+| `SPRUT_API_BASE` | `https://cloud.sprutmonitor.ru/v3` | База API (`serverBase`) |
+| `SPRUT_EMAIL` | `demo@sprutmonitor.ru` | Оператор |
+| `SPRUT_PASSWORD` | `demo` | Только демо |
+| `SPRUT_DEFAULT_DAYS` | `1` | Глубина, если нет дат и `period` |
+| `SPRUT_TOOLSETS` | `all` | `all`, `core` или `console` (console включает core) |
 
 ```bash
-octowatch-mcp                                      # stdio (default)
-octowatch-mcp --transport streamable-http          # http://127.0.0.1:8000/mcp
+sprutmonitor-mcp
+sprutmonitor-mcp --transport streamable-http
 ```
 
-### Periods & filters
+Второй вариант слушает `http://127.0.0.1:8000/mcp`.
 
-Prefer `period=today|yesterday|last_7_days|last_30_days`, or `date_from` / `date_to`.
+Период: `today`, `yesterday`, `last_7_days`, `last_30_days` либо `date_from` / `date_to`. Дата без времени — целый день, `date_to` заканчивается в `23:59:59`. В POST фильтр группы — `NodeType=14`, человека — `NodeType=1`. Число для человека берётся из поля `ID` узла с `Type=2` в `list_users_groups`. Поля `AliasID` в этом дереве нет: так называется тот же id уже в отчётах. `Type` дерева — не `NodeType`.
 
-- Date-only values cover the **full calendar day** (`date_to` → `23:59:59`).
-- Optional `user_id` (AliasID) and `group_id` on most read tools.
-- POST body `TreeviewUsers`: all → `NodeType=-666666`; **group → `NodeType=14`**; **user → `NodeType=1`**.
+## Документация
 
-## Documentation
+| Файл | Содержание |
+|------|------------|
+| [docs/README.md](docs/README.md) | Оглавление |
+| [docs/hosts.md](docs/hosts.md) | Установка в хост и свой вход |
+| [docs/TOOLS.md](docs/TOOLS.md) | Аргументы tools |
+| [docs/MCP.md](docs/MCP.md) | Протокол, ресурсы, промпты |
+| [docs/API.md](docs/API.md) | Что из API кабинета покрыто |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Типовые сбои |
+| [docs/distribution.md](docs/distribution.md) | Публикация ждёт своего репозитория |
+| [docs/registry.md](docs/registry.md) | Реестр MCP пока не используется |
 
-| Doc | Contents |
-|-----|----------|
-| [docs/README.md](docs/README.md) | Doc index |
-| [docs/hosts.md](docs/hosts.md) | Install per host + your login |
-| [docs/TOOLS.md](docs/TOOLS.md) | Tool reference + when-which |
-| [docs/MCP.md](docs/MCP.md) | Protocol, resources, prompts |
-| [docs/API.md](docs/API.md) | MCP coverage audit (not a full REST mirror) |
-| [docs/troubleshooting.md](docs/troubleshooting.md) | Common failures |
-| [docs/registry.md](docs/registry.md) | Official MCP Registry (`server.json`) |
-| [docs/distribution.md](docs/distribution.md) | Directories, Marketplace, deferred hosted channels |
+## Участие
 
-### Product & console
+См. [CONTRIBUTING.md](CONTRIBUTING.md) и [CHANGELOG.md](CHANGELOG.md).
 
-- [octowatchdlp.com](https://octowatchdlp.com/)
-- [octowatchdlp.com/docs/](https://octowatchdlp.com/docs/)
-- [app.octowatchdlp.com](https://app.octowatchdlp.com/)
-- [app.octowatchdlp.com/api/](https://app.octowatchdlp.com/api/)
+## Лицензия
 
-## Roadmap
-
-Planned (not scheduled): tighter payload budgets, client-side rate limits, argument completions, server icon, optional MCP Apps UI, tool-routing evals. Registry metadata: [docs/registry.md](docs/registry.md). Protocol surface: [docs/MCP.md](docs/MCP.md).
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Changelog: [CHANGELOG.md](CHANGELOG.md). Issues: [GitHub Issues](https://github.com/extralabs/octowatch-mcp-server/issues).
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+MIT — см. [LICENSE](LICENSE).

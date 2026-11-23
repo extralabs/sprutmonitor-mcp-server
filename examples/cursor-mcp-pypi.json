@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "octowatch": {
-      "command": "octowatch-mcp",
+    "sprutmonitor": {
+      "command": "sprutmonitor-mcp",
       "env": {
-        "OCTOWATCH_API_BASE": "https://cloud.octowatchdlp.com",
-        "OCTOWATCH_EMAIL": "demo@octowatchdlp.com",
-        "OCTOWATCH_PASSWORD": "demo"
+        "SPRUT_API_BASE": "https://cloud.sprutmonitor.ru/v3",
+        "SPRUT_EMAIL": "demo@sprutmonitor.ru",
+        "SPRUT_PASSWORD": "demo"
       }
     }
   }

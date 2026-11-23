@@ -1,8 +1,8 @@
-"""Thin HTTP client for OctoWatch Cloud REST API.
+"""Thin HTTP client for SprutMonitor Cloud REST API.
 
 Auth: GET /api/Access/login-jwt → Bearer Token (+ refresh via PublicID).
 Period queries: POST with DateFrom/DateTo headers and TreeviewUsers JSON body.
-Docs UI: https://app.octowatchdlp.com/api/  ·  Host: https://cloud.octowatchdlp.com
+Docs UI: https://app.sprutmonitor.ru/api/  ·  Host: https://cloud.sprutmonitor.ru/v3
 """
 
 from __future__ import annotations
@@ -16,14 +16,14 @@ from urllib.parse import quote
 import httpx
 from typing_extensions import Self
 
-from octowatch_mcp.config import Settings, get_settings
-from octowatch_mcp.filters import (
+from sprutmonitor_mcp.config import Settings, get_settings
+from sprutmonitor_mcp.filters import (
     build_users_filter,
     users_filter_all,
     users_filter_for_group,
     users_filter_for_user,
 )
-from octowatch_mcp.period import DATE_FMT, parse_datetime, resolve_period
+from sprutmonitor_mcp.period import DATE_FMT, parse_datetime, resolve_period
 
 __all__ = [
     "ACCOUNT_READONLY_SOURCES",
@@ -34,8 +34,8 @@ __all__ = [
     "MONITORING_KINDS",
     "STREAM_META_SOURCES",
     "USER_INFO_SOURCES",
-    "OctoWatchAPIError",
-    "OctoWatchClient",
+    "SprutMonitorAPIError",
+    "SprutMonitorClient",
     "build_users_filter",
     "parse_datetime",
     "resolve_period",
@@ -121,9 +121,6 @@ ACCOUNT_READONLY_SOURCES: dict[str, str] = {
     "top_apps": "/api/Edit/Get50Apps",
     "price_settings": "/api/Tree/GetPriceSettings",
     "num_users": "/api/Account/GetNumUsers",
-    "license": "/api/Account/getlicenseinfo-jwt",
-    "license_expired": "/api/Account/getlicenseinfo-expired-jwt",
-    "license_support": "/api/Account/getlicenseinfo-support-jwt",
     "reports": "/api/Account/GetReports",
     "processing_tasks": "/api/Edit/GetProcessingTasks",
 }
@@ -135,14 +132,14 @@ STREAM_META_SOURCES: dict[str, str] = {
 }
 
 
-class OctoWatchAPIError(RuntimeError):
+class SprutMonitorAPIError(RuntimeError):
     def __init__(self, message: str, *, status_code: int | None = None, body: str | None = None):
         super().__init__(message)
         self.status_code = status_code
         self.body = body
 
 
-class OctoWatchClient:
+class SprutMonitorClient:
     def __init__(self, settings: Settings | None = None) -> None:
         self.settings = settings or get_settings()
         self._token: str | None = None
@@ -180,7 +177,7 @@ class OctoWatchClient:
             path = f"/api/Access/login-jwt?email={email}&password={password}"
             data = self._request_json("GET", path, auth=False)
             if not isinstance(data, dict) or not data.get("Token"):
-                raise OctoWatchAPIError(
+                raise SprutMonitorAPIError(
                     f"login-jwt failed: {(data or {}).get('Message') if isinstance(data, dict) else data}",
                     body=str(data),
                 )
@@ -200,20 +197,20 @@ class OctoWatchClient:
                 try:
                     self.refresh()
                     return
-                except OctoWatchAPIError:
+                except SprutMonitorAPIError:
                     pass
             self.login()
 
     def refresh(self) -> dict[str, Any]:
         with self._lock:
             if not self._refresh_token or not self._public_id:
-                raise OctoWatchAPIError("No refresh token; call login() first")
+                raise SprutMonitorAPIError("No refresh token; call login() first")
             rt = quote(self._refresh_token, safe="")
             pid = quote(self._public_id, safe="")
             path = f"/api/Access/refresh-token?refresh_Token={rt}&PublicID={pid}"
             data = self._request_json("GET", path, auth=False)
             if not isinstance(data, dict) or not data.get("Token"):
-                raise OctoWatchAPIError(
+                raise SprutMonitorAPIError(
                     f"refresh-token failed: {data}",
                     body=str(data),
                 )
@@ -260,7 +257,7 @@ class OctoWatchClient:
                 params=params,
             )
         if response.status_code >= 400:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"{method} {path} → HTTP {response.status_code}: {response.text[:500]}",
                 status_code=response.status_code,
                 body=response.text,
@@ -270,7 +267,7 @@ class OctoWatchClient:
         try:
             return response.json()
         except (ValueError, TypeError) as exc:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"{method} {path}: invalid JSON ({exc})",
                 status_code=response.status_code,
                 body=response.text[:500],
@@ -358,7 +355,7 @@ class OctoWatchClient:
     def get_directory(self, source: str, *, force_refresh: bool = False) -> Any:
         path = DIRECTORY_SOURCES.get(source)
         if not path:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"Unknown directory source={source!r}; choose from {sorted(DIRECTORY_SOURCES)}"
             )
         if source == "users_groups":
@@ -379,7 +376,7 @@ class OctoWatchClient:
         """Account/Edit Get* aligned with web console headers."""
         path = ACCOUNT_READONLY_SOURCES.get(source)
         if not path:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"Unknown account source={source!r}; choose from {sorted(ACCOUNT_READONLY_SOURCES)}"
             )
         hdrs = dict(extra_headers or {})
@@ -395,30 +392,26 @@ class OctoWatchClient:
         elif source == "timetable":
             # GetProfileTimeTable needs ProfileTimeTableID
             if profile_id is None:
-                raise OctoWatchAPIError("source=timetable requires profile_id (ProfileTimeTableID)")
+                raise SprutMonitorAPIError(
+                    "source=timetable requires profile_id (ProfileTimeTableID)"
+                )
             hdrs["ProfileTimeTableID"] = str(profile_id)
         elif source == "rules":
             if profile_id is None:
-                raise OctoWatchAPIError("source=rules requires profile_id (ProfileRulesID)")
+                raise SprutMonitorAPIError("source=rules requires profile_id (ProfileRulesID)")
             hdrs["ProfileRulesID"] = str(profile_id)
         elif source == "profile_settings":
             if profile_id is None:
-                raise OctoWatchAPIError(
+                raise SprutMonitorAPIError(
                     "source=profile_settings requires profile_id (ProfileSettingsID)"
                 )
             hdrs["ProfileSettingsID"] = str(profile_id)
         elif source == "computer_settings":
             if profile_id is None:
-                raise OctoWatchAPIError(
+                raise SprutMonitorAPIError(
                     "source=computer_settings requires profile_id (ProfileComputerSettingsID)"
                 )
             hdrs["ProfileComputerSettingsID"] = str(profile_id)
-
-        if source.startswith("license"):
-            email = quote(self.settings.email, safe="")
-            password = quote(self.settings.password, safe="")
-            sep = "&" if "?" in path else "?"
-            path = f"{path}{sep}email={email}&password={password}"
 
         if hdrs:
             return self.get(path, headers=hdrs)
@@ -435,7 +428,7 @@ class OctoWatchClient:
     ) -> Any:
         """User/computer detail Gets — same headers as my-analytics SPA."""
         if source not in USER_INFO_SOURCES:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"Unknown user_info source={source!r}; choose from {sorted(USER_INFO_SOURCES)}"
             )
         method, path = USER_INFO_SOURCES[source]
@@ -444,7 +437,7 @@ class OctoWatchClient:
         if source == "user_data":
             # SPA: GET DateFrom, DateTo, AliasID (not POST TreeviewUsers)
             if alias_id is None:
-                raise OctoWatchAPIError("source=user_data requires alias_id (AliasID)")
+                raise SprutMonitorAPIError("source=user_data requires alias_id (AliasID)")
             df, dt = resolve_period(date_from, date_to, self.settings.default_days)
             hdrs = {
                 "DateFrom": df.strftime(DATE_FMT),
@@ -456,13 +449,13 @@ class OctoWatchClient:
         if source in ("tooltip", "group"):
             # GetGroup = group path for a user (AliasID), not "load group by GroupID"
             if alias_id is None:
-                raise OctoWatchAPIError(f"source={source} requires alias_id (AliasID)")
+                raise SprutMonitorAPIError(f"source={source} requires alias_id (AliasID)")
             hdrs["AliasID"] = str(alias_id)
             return self._request_json(method, path, headers=hdrs)
 
         if source in ("computer", "users_from_computer"):
             if not computer_guid:
-                raise OctoWatchAPIError(
+                raise SprutMonitorAPIError(
                     f"source={source} requires computer_guid (ComputerGuid header)"
                 )
             # SPA uses encodeURIComponent on the header value
@@ -716,7 +709,7 @@ class OctoWatchClient:
     ) -> Any:
         path = ANALYTICS_VIEWS.get(view)
         if not path:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"Unknown analytics view={view!r}; choose from {sorted(ANALYTICS_VIEWS)}"
             )
         return self.post(
@@ -763,7 +756,7 @@ class OctoWatchClient:
     ) -> Any:
         path = DASHBOARD_WIDGETS.get(widget)
         if not path:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"Unknown dashboard widget={widget!r}; choose from {sorted(DASHBOARD_WIDGETS)}"
             )
         extra: dict[str, str] = {}
@@ -797,7 +790,7 @@ class OctoWatchClient:
         screen_type: str | None = None,
     ) -> Any:
         if kind not in MONITORING_KINDS:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"Unknown monitoring kind={kind!r}; choose from {sorted(MONITORING_KINDS)}"
             )
         extra: dict[str, str] = {}
@@ -833,7 +826,7 @@ class OctoWatchClient:
         kinds: list[str] | None = None,
     ) -> dict[str, Any]:
         """Console Tools → Search fan-out across Monitoring kinds."""
-        from octowatch_mcp.tools_search import execute_tools_search
+        from sprutmonitor_mcp.tools_search import execute_tools_search
 
         return execute_tools_search(
             self.monitoring,
@@ -877,7 +870,7 @@ class OctoWatchClient:
         downloads: GET (Bearer only)
         """
         if source not in STREAM_META_SOURCES:
-            raise OctoWatchAPIError(
+            raise SprutMonitorAPIError(
                 f"Unknown stream source={source!r}; choose from {sorted(STREAM_META_SOURCES)}"
             )
         path = STREAM_META_SOURCES[source]
@@ -887,7 +880,7 @@ class OctoWatchClient:
 
         if source == "which_content":
             if alias_id is None:
-                raise OctoWatchAPIError("which_content requires alias_id (AliasID)")
+                raise SprutMonitorAPIError("which_content requires alias_id (AliasID)")
             # Prefer explicit at, then period end (DateTo), then DateFrom.
             when = at or date_to or date_from
             if when is None:
@@ -909,7 +902,7 @@ class OctoWatchClient:
                 hdrs["Authorization"] = f"Bearer {token}"
                 response = self._http.request("GET", path, headers=hdrs)
             if response.status_code >= 400:
-                raise OctoWatchAPIError(
+                raise SprutMonitorAPIError(
                     f"GET {path} → HTTP {response.status_code}: {response.text[:500]}",
                     status_code=response.status_code,
                     body=response.text,
@@ -921,13 +914,13 @@ class OctoWatchClient:
                 try:
                     value = int(text)
                 except ValueError as exc:
-                    raise OctoWatchAPIError(
+                    raise SprutMonitorAPIError(
                         f"GET {path}: expected int 0|1|2, got {text[:80]!r}",
                         status_code=response.status_code,
                         body=response.text[:200],
                     ) from exc
             if value not in (0, 1, 2):
-                raise OctoWatchAPIError(
+                raise SprutMonitorAPIError(
                     f"GET {path}: WhichContentExists out of range: {value}",
                     status_code=response.status_code,
                     body=response.text[:200],
@@ -943,7 +936,7 @@ class OctoWatchClient:
 
         # videos
         if alias_id is None:
-            raise OctoWatchAPIError("videos requires alias_id / user_id (UserID header)")
+            raise SprutMonitorAPIError("videos requires alias_id / user_id (UserID header)")
         df, dt = resolve_period(date_from, date_to, self.settings.default_days)
         return self.get(
             path,

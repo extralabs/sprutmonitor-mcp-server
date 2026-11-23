@@ -1,18 +1,18 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.extralabs/octowatch-mcp",
-  "title": "OctoWatch DLP",
-  "description": "OctoWatch DLP Cloud (octowatchdlp) read-only MCP: risks, idle, productivity, monitoring.",
-  "websiteUrl": "https://octowatchdlp.com/",
+  "name": "io.github.extralabs/sprutmonitor-mcp",
+  "title": "SprutMonitor DLP",
+  "description": "SprutMonitor Cloud read-only MCP: risks, idle, productivity, monitoring.",
+  "websiteUrl": "https://sprutmonitor.ru/",
   "repository": {
-    "url": "https://github.com/extralabs/octowatch-mcp-server",
+    "url": "https://github.com/extralabs/sprutmonitor-mcp-server",
     "source": "github"
   },
   "version": "0.5.1",
   "packages": [
     {
       "registryType": "pypi",
-      "identifier": "octowatch-mcp",
+      "identifier": "sprutmonitor-mcp",
       "version": "0.5.1",
       "runtimeHint": "uvx",
       "transport": {
@@ -20,22 +20,22 @@
       },
       "environmentVariables": [
         {
-          "name": "OCTOWATCH_API_BASE",
+          "name": "SPRUT_API_BASE",
           "description": "Cloud API host (serverBase). Default: public cloud.",
           "isRequired": false,
           "format": "string",
-          "default": "https://cloud.octowatchdlp.com"
+          "default": "https://cloud.sprutmonitor.ru/v3"
         },
         {
-          "name": "OCTOWATCH_EMAIL",
+          "name": "SPRUT_EMAIL",
           "description": "Console operator email. Demo default works for try-out.",
           "isRequired": false,
           "format": "string",
           "isSecret": false,
-          "default": "demo@octowatchdlp.com"
+          "default": "demo@sprutmonitor.ru"
         },
         {
-          "name": "OCTOWATCH_PASSWORD",
+          "name": "SPRUT_PASSWORD",
           "description": "Console password. Use a least-privilege operator for real tenants.",
           "isRequired": false,
           "format": "string",
@@ -43,7 +43,7 @@
           "default": "demo"
         },
         {
-          "name": "OCTOWATCH_TOOLSETS",
+          "name": "SPRUT_TOOLSETS",
           "description": "Tool filter: all | core | console (console includes core).",
           "isRequired": false,
           "format": "string",

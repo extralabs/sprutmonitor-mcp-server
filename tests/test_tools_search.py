@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from octowatch_mcp.tools_search import (
+from sprutmonitor_mcp.tools_search import (
     execute_tools_search,
     resolve_search_kinds,
     shape_search_row,

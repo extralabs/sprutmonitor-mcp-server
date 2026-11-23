@@ -1,4 +1,4 @@
-"""Period / datetime helpers for OctoWatch API (local-naive DateFrom/DateTo)."""
+"""Period / datetime helpers for SprutMonitor API (local-naive DateFrom/DateTo)."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ def parse_datetime(value: str | None, *, end_of_day: bool = False) -> datetime |
     value = value.strip()
     for fmt in (DATE_FMT, "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"):
         try:
-            dt = datetime.strptime(value, fmt)  # noqa: DTZ007
+            dt = datetime.strptime(value, fmt)
             if fmt == "%Y-%m-%d":
                 if end_of_day:
                     return dt.replace(hour=23, minute=59, second=59)

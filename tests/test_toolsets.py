@@ -1,10 +1,10 @@
-"""Unit tests for OCTOWATCH_TOOLSETS resolution."""
+"""Unit tests for SPRUT_TOOLSETS resolution."""
 
 from __future__ import annotations
 
 import pytest
 
-from octowatch_mcp.toolsets import (
+from sprutmonitor_mcp.toolsets import (
     ALL_TOOLS,
     CONSOLE_TOOLS,
     CORE_TOOLS,

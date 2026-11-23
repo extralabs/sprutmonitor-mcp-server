@@ -308,7 +308,7 @@ def format_timesheet(
             date_val = str(day.get("DateValue") or "")[:10]
             expected_h = None
             if tf:
-                # Day1=Monday … Day7=Sunday (OctoWatch timetable convention)
+                # Day1=Monday … Day7=Sunday (SprutMonitor timetable convention)
                 day_idx = tf.weekday() + 1
                 expected_h = settings.get(f"Day{day_idx}Hours")
             days.append(

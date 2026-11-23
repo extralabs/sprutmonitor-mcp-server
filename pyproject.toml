@@ -1,18 +1,17 @@
 [project]
-name = "octowatch-mcp"
+name = "sprutmonitor-mcp"
 version = "0.5.1"
-description = "Read-only MCP server for OctoWatch DLP Cloud (octowatchdlp.com) - risks, idle time, productivity, and employee monitoring for Cursor, Claude, and VS Code"
+description = "Read-only MCP server for SprutMonitor DLP Cloud (sprutmonitor.ru) - risks, idle time, productivity, and employee monitoring for Cursor, Claude, and VS Code"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
-authors = [{ name = "KOLIBRI LLC" }]
+authors = [{ name = "SprutMonitor" }]
 keywords = [
   "mcp",
   "mcp-server",
   "model-context-protocol",
-  "octowatch",
-  "octowatch-dlp",
-  "octowatchdlp",
+  "sprutmonitor",
+  "sprutmonitor-dlp",
   "dlp",
   "employee-monitoring",
   "productivity",
@@ -44,24 +43,22 @@ dependencies = [
 dev = ["pytest>=8.0", "ruff>=0.6"]
 
 [project.scripts]
-octowatch-mcp = "octowatch_mcp.server:main"
+sprutmonitor-mcp = "sprutmonitor_mcp.server:main"
 
 [project.urls]
-Homepage = "https://octowatchdlp.com/"
-Documentation = "https://octowatchdlp.com/docs/"
-Console = "https://app.octowatchdlp.com/"
-API = "https://app.octowatchdlp.com/api/"
-Repository = "https://github.com/extralabs/octowatch-mcp-server"
-Issues = "https://github.com/extralabs/octowatch-mcp-server/issues"
-Changelog = "https://github.com/extralabs/octowatch-mcp-server/blob/main/CHANGELOG.md"
-"MCP Registry" = "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.extralabs/octowatch-mcp"
+Homepage = "https://sprutmonitor.ru/"
+Documentation = "https://sprutmonitor.ru/docs/"
+Console = "https://app.sprutmonitor.ru/"
+API = "https://app.sprutmonitor.ru/api/"
+Repository = "https://github.com/extralabs/sprutmonitor-mcp-server"
+Issues = "https://github.com/extralabs/sprutmonitor-mcp-server/issues"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/octowatch_mcp"]
+packages = ["src/sprutmonitor_mcp"]
 
 [tool.ruff]
 line-length = 100

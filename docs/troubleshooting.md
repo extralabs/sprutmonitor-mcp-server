@@ -1,47 +1,46 @@
-# Troubleshooting
+# Если не работает
 
-MCP-focused fixes. For product/console how-to, use [octowatchdlp.com/docs/](https://octowatchdlp.com/docs/) and verify data in the [Web Console](https://app.octowatchdlp.com/). REST shapes: [app.octowatchdlp.com/api/](https://app.octowatchdlp.com/api/).
+Сбои MCP. Как пользоваться кабинетом: [документация продукта](https://sprutmonitor.ru/docs/). Данные сверяйте в [кабинете](https://app.sprutmonitor.ru/). Формы REST: [каталог API](https://app.sprutmonitor.ru/api/).
 
-## Auth failed / whoami errors
+## Ошибка входа или whoami
 
-1. Check `OCTOWATCH_EMAIL` / `OCTOWATCH_PASSWORD` (typos, wrong tenant).
-2. Confirm the host actually injects `env` (open the MCP JSON you edited).
-3. For `.env` + source install, ensure `cwd` is the directory that contains `.env`.
-4. Confirm `OCTOWATCH_API_BASE` is the Cloud API host, not the SPA origin (`app.octowatchdlp.com`).
-5. Log in manually at [app.octowatchdlp.com](https://app.octowatchdlp.com/) with the same operator.
+1. Проверьте `SPRUT_EMAIL` и `SPRUT_PASSWORD` (опечатка, другой кабинет).
+2. Убедитесь, что хост правда подставляет `env` (откройте тот JSON, который правили).
+3. Для `.env` рабочий каталог процесса (`cwd`) должен быть папкой с этим файлом.
+4. `SPRUT_API_BASE` — это база API, не сайт кабинета. Облако: `https://cloud.sprutmonitor.ru/v3`, не `https://app.sprutmonitor.ru`.
+5. Войдите теми же данными вручную на [app.sprutmonitor.ru](https://app.sprutmonitor.ru/).
 
-## Server not showing in the host
+## Сервер не виден в хосте
 
-- `octowatch-mcp` (or venv `python`) must be on the PATH the **host** uses.
-- Restart the host after editing MCP config.
-- From-source configs need a valid absolute `cwd`.
-- Check host MCP logs; server logs go to **stderr** (stdout is reserved for stdio framing).
+- `sprutmonitor-mcp` или `python` из `.venv` должны быть в PATH именно хоста.
+- После правки конфига перезапустите хост.
+- Запуск из исходников требует абсолютный `cwd`.
+- Логи сервера идут в stderr. stdout занят кадром stdio.
 
-## Empty risks / monitoring / activity
+## Пустые риски, мониторинг или активность
 
-- Wrong `period` or timezone expectation — try `period=last_7_days`.
-- Filters: `user_id` is **AliasID**; `group_id` is group id (NodeType 14), not tree `Type`.
-- Demo tenant may simply have little data for that window — compare in the console.
-- `compact=true` truncates text; it should not empty entire lists.
+- Другой период или ожидание часового пояса. Попробуйте `period=last_7_days`.
+- `user_id` — поле `ID` человека в `list_users_groups` (`Type=2`), не `Type` и не `GroupID`. `group_id` — id группы (NodeType 14).
+- В демо за это окно может почти не быть данных. Сверьте кабинет.
+- `compact=true` обрезает текст, но не должен обнулять списки целиком.
 
-## Empty `list_anomalies` but people look “idle”
+## Пустой `list_anomalies`, хотя люди «простаивают»
 
-Formal Alerts ≠ idle time. Use `get_idle_summary` for `InactiveTime`. Empty Alerts on a 24h timetable is expected. See [TOOLS.md](TOOLS.md#when-which-tool).
+Формальные алерты — не простой. Простой: `get_idle_summary` и поле `InactiveTime`. Пустые алерты на круглосуточном графике — норма. См. [TOOLS.md](TOOLS.md).
 
-## Agent used the wrong tool
+## Модель взяла не тот tool
 
-Share the when-which table or invoke prompt `idle_review` / `daily_risks_brief`. Resource `octowatch://tool-routing` carries the same guidance.
+Дайте таблицу «какой tool когда» или промпт `idle_review` / `daily_risks_brief`. Тот же текст лежит в ресурсе `sprutmonitor://tool-routing`.
 
-## Large / truncated payloads
+## Слишком большой или обрезанный ответ
 
-Defaults cap `limit` and compact long fields. Narrow `period`, set `user_id`/`group_id`, or lower `limit`. Avoid `fetch_all` on risks unless needed. Be gentle on the **demo** tenant.
+По умолчанию есть потолок `limit` и обрезка длинных полей. Сузьте `period`, задайте `user_id` или `group_id`, уменьшите `limit`. `fetch_all` по рискам включайте только когда он нужен. Демо не нагружайте.
 
-## Streamable HTTP issues
+## Streamable HTTP
 
-Default bind is `127.0.0.1`. Remote bind exposes credentials in use — see [SECURITY.md](../SECURITY.md). Prefer stdio for desktop hosts.
+Слушает `127.0.0.1`. Чужой адрес раскрывает учётные данные. См. [SECURITY.md](../SECURITY.md). Для настольных хостов лучше stdio.
 
-## Still stuck
+## Всё ещё неясно
 
-- Coverage / intentional gaps: `list_api_coverage` or [API.md](API.md)
-- Protocol surface: [MCP.md](MCP.md)
-- Issues: [GitHub Issues](https://github.com/extralabs/octowatch-mcp-server/issues)
+- Пробелы покрытия: `list_api_coverage` или [API.md](API.md)
+- Поверхность протокола: [MCP.md](MCP.md)

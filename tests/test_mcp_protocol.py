@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 
 from mcp import Client
 
-from octowatch_mcp.client import OctoWatchAPIError
-from octowatch_mcp.server import mcp
+from sprutmonitor_mcp.client import SprutMonitorAPIError
+from sprutmonitor_mcp.server import mcp
 
 
 def _content_text(result) -> str:
@@ -68,12 +68,12 @@ def test_bad_period_is_tool_error():
 
 def test_api_error_mapped_to_tool_error():
     mock_client = MagicMock()
-    mock_client.ensure_auth.side_effect = OctoWatchAPIError("auth failed", status_code=401)
+    mock_client.ensure_auth.side_effect = SprutMonitorAPIError("auth failed", status_code=401)
 
     async def _go():
-        with patch("octowatch_mcp.server._get_client", return_value=mock_client):
+        with patch("sprutmonitor_mcp.server._get_client", return_value=mock_client):
             async with Client(mcp) as client:
-                return await client.call_tool("octowatch_whoami", {})
+                return await client.call_tool("sprutmonitor_whoami", {})
 
     result = asyncio.run(_go())
     assert result.is_error is True
@@ -109,9 +109,9 @@ def test_list_resources_and_prompts():
 
     resources, prompts = asyncio.run(_go())
     uris = {str(r.uri) for r in resources.resources}
-    assert "octowatch://coverage" in uris
-    assert "octowatch://tool-routing" in uris
-    assert "octowatch://whoami" in uris
+    assert "sprutmonitor://coverage" in uris
+    assert "sprutmonitor://tool-routing" in uris
+    assert "sprutmonitor://whoami" in uris
     names = {p.name for p in prompts.prompts}
     assert {
         "daily_risks_brief",
@@ -124,7 +124,7 @@ def test_list_resources_and_prompts():
 def test_read_coverage_resource():
     async def _go():
         async with Client(mcp) as client:
-            return await client.read_resource("octowatch://coverage")
+            return await client.read_resource("sprutmonitor://coverage")
 
     result = asyncio.run(_go())
     body = ""
@@ -137,7 +137,7 @@ def test_read_coverage_resource():
 
 def test_toolsets_catalog_matches_registered_tools():
     """Prevent drift: every registered tool must be in CORE or CONSOLE."""
-    from octowatch_mcp.toolsets import ALL_TOOLS
+    from sprutmonitor_mcp.toolsets import ALL_TOOLS
 
     tools = _list_tools()
     names = {t.name for t in tools}

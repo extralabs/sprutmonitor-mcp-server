@@ -1,4 +1,4 @@
-"""OctoWatch MCP server — read-only tools for Claude / Cursor / ChatGPT."""
+"""SprutMonitor MCP server — read-only tools for Claude / Cursor / ChatGPT."""
 
 from __future__ import annotations
 
@@ -15,22 +15,22 @@ from mcp.server.mcpserver.exceptions import ResourceError, ToolError
 from mcp.types import ToolAnnotations
 from pydantic import Field
 
-from octowatch_mcp import __version__
-from octowatch_mcp.client import (
+from sprutmonitor_mcp import __version__
+from sprutmonitor_mcp.client import (
     ACCOUNT_READONLY_SOURCES,
     ANALYTICS_VIEWS,
     DASHBOARD_WIDGETS,
     DIRECTORY_SOURCES,
     STREAM_META_SOURCES,
     USER_INFO_SOURCES,
-    OctoWatchAPIError,
-    OctoWatchClient,
+    SprutMonitorAPIError,
+    SprutMonitorClient,
 )
-from octowatch_mcp.compact import compact_api_payload
-from octowatch_mcp.config import get_settings
-from octowatch_mcp.coverage import coverage_summary
-from octowatch_mcp.filters import build_users_filter
-from octowatch_mcp.formatters import (
+from sprutmonitor_mcp.compact import compact_api_payload
+from sprutmonitor_mcp.config import get_settings
+from sprutmonitor_mcp.coverage import coverage_summary
+from sprutmonitor_mcp.filters import build_users_filter
+from sprutmonitor_mcp.formatters import (
     analytics_risks_by_user,
     filter_by_alias_id,
     format_activity_top,
@@ -40,11 +40,11 @@ from octowatch_mcp.formatters import (
     slim_risk_row,
     summarize_risks_page,
 )
-from octowatch_mcp.period import resolve_tool_period
-from octowatch_mcp.report_types import label_report_types
-from octowatch_mcp.toolsets import apply_toolsets
+from sprutmonitor_mcp.period import resolve_tool_period
+from sprutmonitor_mcp.report_types import label_report_types
+from sprutmonitor_mcp.toolsets import apply_toolsets
 
-logger = logging.getLogger("octowatch_mcp")
+logger = logging.getLogger("sprutmonitor_mcp")
 
 _RO = ToolAnnotations(read_only_hint=True, open_world_hint=True)
 
@@ -68,24 +68,26 @@ _TOOL_ROUTING = (
     "- Online presence -> list_online. Video metadata -> list_stream_meta "
     "(no screenshot/video binary downloads).\n"
     "- Users/groups tree -> list_users_groups or list_directory; person card -> get_user_info.\n"
-    "- Profiles/license/settings (Get*) -> get_account_readonly. Reports queue -> list_reports.\n"
-    "- Coverage gaps -> list_api_coverage. Account/host -> octowatch_whoami.\n"
+    "- Profiles/settings (Get*) -> get_account_readonly. Reports queue -> list_reports.\n"
+    "- Coverage gaps -> list_api_coverage. Account/host -> sprutmonitor_whoami.\n"
     "No writes. Demo credentials may be active - never assume production data."
 )
 
 mcp = MCPServer(
-    "octowatch",
+    "sprutmonitor",
     version=__version__,
-    website_url="https://octowatchdlp.com",
+    website_url="https://sprutmonitor.ru",
     instructions=(
-        "Read-only OctoWatch DLP Cloud. Prefer period=today|yesterday|last_7_days|last_30_days "
+        "Read-only SprutMonitor DLP Cloud. Prefer period=today|yesterday|last_7_days|last_30_days "
         "or date_from/date_to (date-only = full day, date_to ends 23:59:59). "
-        "Filters: group_id = TreeviewUsers NodeType=14; user_id = NodeType=1 (AliasID). "
+        "Filters: group_id = TreeviewUsers NodeType=14; user_id = NodeType=1. "
+        "list_users_groups is a flat Items list: user_id is Items.ID where Type=2 "
+        "(reports call that AliasID). Tree Type is not NodeType. "
         "GetUsersGroups2 Type 1=group/2=user is NOT POST NodeType.\n" + _TOOL_ROUTING
     ),
 )
 
-_client: OctoWatchClient | None = None
+_client: SprutMonitorClient | None = None
 RISKS_FETCH_ALL_CAP = 2000
 DEFAULT_LIMIT = 100
 MAX_LIMIT = 500
@@ -113,7 +115,7 @@ GroupIdArg = Annotated[
 ]
 UserIdArg = Annotated[
     int | None,
-    Field(description="User filter: AliasID as TreeviewUsers NodeType=1."),
+    Field(description="User filter: Items.ID where Type=2 (reports call it AliasID). NodeType=1."),
 ]
 LimitArg = Annotated[
     int,
@@ -174,7 +176,7 @@ def _map_tool_errors(fn: F) -> F:
             return fn(*args, **kwargs)
         except ToolError:
             raise
-        except OctoWatchAPIError as exc:
+        except SprutMonitorAPIError as exc:
             # client messages already include "→ HTTP N:"; don't double-prefix
             detail = str(exc)
             logger.info("Tool %s API error: %s", fn.__name__, detail)
@@ -186,10 +188,10 @@ def _map_tool_errors(fn: F) -> F:
     return wrapper  # type: ignore[return-value]
 
 
-def _get_client() -> OctoWatchClient:
+def _get_client() -> SprutMonitorClient:
     global _client
     if _client is None:
-        _client = OctoWatchClient(get_settings())
+        _client = SprutMonitorClient(get_settings())
     return _client
 
 
@@ -247,7 +249,7 @@ def _maybe_compact(data: Any, compact: bool, limit: int = DEFAULT_LIMIT) -> Any:
 
 
 def _configure_logging() -> None:
-    root = logging.getLogger("octowatch_mcp")
+    root = logging.getLogger("sprutmonitor_mcp")
     if root.handlers:
         return
     handler = logging.StreamHandler(sys.stderr)
@@ -262,18 +264,19 @@ def _configure_logging() -> None:
 
 @mcp.tool(title="Who am I", annotations=_RO)
 @_map_tool_errors
-def octowatch_whoami() -> dict[str, Any]:
-    """Show which OctoWatch API host and account the MCP server is using (password never returned)."""
+def sprutmonitor_whoami() -> dict[str, Any]:
+    """Show which SprutMonitor API host and account the MCP server is using (password never returned)."""
     return _session_identity()
 
 
 @mcp.tool(title="List users and groups", annotations=_RO)
 @_map_tool_errors
 def list_users_groups(refresh: bool = False) -> dict[str, Any]:
-    """List users and groups tree (GetUsersGroups2). Type 0=root, 1=group, 2=user.
+    """List users and groups (GetUsersGroups2). Flat Items list.
+    Type 0=root, 1=group, 2=user. Name is NameInner. There is no AliasID field.
 
-    These Type values are for the UI tree only. For report POST filters use
-    NodeType 14=group and NodeType 1=user (AliasID).
+    For a user, pass Items.ID (Type=2) as user_id. Reports call that same number AliasID.
+    POST filters use NodeType 14=group and NodeType 1=user. Tree Type is not NodeType.
     Cached ~5 min per MCP session; pass refresh=true to force reload.
     """
     return _tool_payload(_get_client().get_users_groups(force_refresh=refresh))
@@ -978,13 +981,10 @@ def get_account_readonly(
             "top_apps",
             "price_settings",
             "num_users",
-            "license",
-            "license_expired",
-            "license_support",
             "reports",
             "processing_tasks",
         ],
-        Field(description="Account/profile/license Get source (no Set*/PIN)."),
+        Field(description="Account/profile Get source (no Set*/PIN, no license routes)."),
     ] = "account_settings",
     profiles_type: int | None = None,
     user_id: UserIdArg = None,
@@ -993,7 +993,9 @@ def get_account_readonly(
     computer_guid: str | None = None,
     compact: bool = True,
 ) -> dict[str, Any]:
-    """Read-only account/profile/license Gets (SPA header contracts).
+    """Read-only account/profile Gets (SPA header contracts).
+
+    License routes are not on this cloud (HTTP 404) and are not called.
 
     profiles: GetProfiles2 — ProfilesType 0|1|2; optional user_id + alias_type
     (1=user, 14=group); defaults AliasID/AliasType=-1.
@@ -1025,14 +1027,14 @@ def list_api_coverage() -> dict[str, Any]:
 # --- resources ----------------------------------------------------------------
 
 
-@mcp.resource("octowatch://coverage", mime_type="application/json", title="API coverage")
+@mcp.resource("sprutmonitor://coverage", mime_type="application/json", title="API coverage")
 def resource_coverage() -> dict[str, Any]:
     """Static gap matrix of console API coverage (same data as list_api_coverage)."""
     return coverage_summary()
 
 
 @mcp.resource(
-    "octowatch://tool-routing",
+    "sprutmonitor://tool-routing",
     mime_type="text/plain",
     title="Tool routing guide",
 )
@@ -1041,12 +1043,12 @@ def resource_tool_routing() -> str:
     return _TOOL_ROUTING
 
 
-@mcp.resource("octowatch://whoami", mime_type="application/json", title="Session identity")
+@mcp.resource("sprutmonitor://whoami", mime_type="application/json", title="Session identity")
 def resource_whoami() -> dict[str, Any]:
     """Current API host and account (password never included). Live call."""
     try:
         return _session_identity()
-    except OctoWatchAPIError as exc:
+    except SprutMonitorAPIError as exc:
         raise ResourceError(str(exc)) from exc
     except (ValueError, TypeError, httpx.HTTPError, OSError) as exc:
         raise ResourceError(str(exc)) from exc
@@ -1064,7 +1066,7 @@ def daily_risks_brief(
 ) -> str:
     """Summarize DLP risks for a period using the recommended tool sequence."""
     return (
-        f"Produce a short SecOps risks brief for OctoWatch period={period}.\n"
+        f"Produce a short SecOps risks brief for SprutMonitor period={period}.\n"
         "1) Call list_risks(period=..., mode=summary).\n"
         "2) Highlight top users (by_user) and top rules (by_rule).\n"
         "3) If needed, call list_users_groups to map AliasIDs to names.\n"
@@ -1142,7 +1144,7 @@ def main(argv: list[str] | None = None) -> None:
     import argparse
 
     _configure_logging()
-    parser = argparse.ArgumentParser(prog="octowatch-mcp")
+    parser = argparse.ArgumentParser(prog="sprutmonitor-mcp")
     parser.add_argument(
         "--transport",
         choices=("stdio", "streamable-http"),
@@ -1169,7 +1171,7 @@ def main(argv: list[str] | None = None) -> None:
         logger.error("%s", exc)
         raise SystemExit(2) from exc
     logger.info(
-        "Starting octowatch-mcp %s (api_base=%s, demo=%s, transport=%s)",
+        "Starting sprutmonitor-mcp %s (api_base=%s, demo=%s, transport=%s)",
         __version__,
         settings.api_base,
         settings.is_demo,

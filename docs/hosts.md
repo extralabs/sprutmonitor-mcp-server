@@ -1,133 +1,103 @@
-# Install & hosts
+# Установка в хосты
 
-How to run **octowatch-mcp** inside common MCP hosts and how to use **your** OctoWatch login.
+Как запустить `sprutmonitor-mcp` в Cursor, Claude Desktop и VS Code и как подставить свой вход.
 
-Product links: [octowatchdlp.com](https://octowatchdlp.com/) · [docs](https://octowatchdlp.com/docs/) · [console](https://app.octowatchdlp.com/) · [API catalog](https://app.octowatchdlp.com/api/).
+Сайт: [sprutmonitor.ru](https://sprutmonitor.ru/) · [документация](https://sprutmonitor.ru/docs/) · [кабинет](https://app.sprutmonitor.ru/) · [каталог API](https://app.sprutmonitor.ru/api/).
 
-## Prerequisites
+## Что нужно
 
-- Python **3.10+** on the PATH used by the host
-- Package installed: `pip install octowatch-mcp` (or editable source install)
-- Network reachability to `OCTOWATCH_API_BASE` (default `https://cloud.octowatchdlp.com`)
+- Python 3.10+ в том PATH, который видит хост
+- Пакет из исходников: `pip install -e .` в этом каталоге (на PyPI его нет)
+- Сеть до `SPRUT_API_BASE` (по умолчанию `https://cloud.sprutmonitor.ru/v3`)
 
-### Host compatibility
-
-| Host | Status |
+| Хост | Статус |
 |------|--------|
-| Cursor | Expected / tested |
-| Claude Desktop | Expected / tested |
-| VS Code (MCP) | Expected |
-| Other MCP clients | Best effort (stdio JSON-RPC) |
-
-## PyPI install (recommended)
-
-```bash
-pip install octowatch-mcp
-octowatch-mcp   # optional smoke: starts stdio server (Ctrl+C to stop)
-```
+| Cursor | Ожидается |
+| Claude Desktop | Ожидается |
+| VS Code (MCP) | Ожидается |
+| Другие клиенты MCP | По возможности, stdio JSON-RPC |
 
 ## Cursor
 
-One-click (demo credentials; run `pip install octowatch-mcp` first so `octowatch-mcp` is on PATH):
+Демо, если команда `sprutmonitor-mcp` уже в PATH после `pip install -e .`:
 
-[![Install in Cursor](https://img.shields.io/badge/Cursor-Install_Server-000000?style=flat-square&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=octowatch&config=eyJjb21tYW5kIjoib2N0b3dhdGNoLW1jcCIsImVudiI6eyJPQ1RPV0FUQ0hfQVBJX0JBU0UiOiJodHRwczovL2Nsb3VkLm9jdG93YXRjaGRscC5jb20iLCJPQ1RPV0FUQ0hfRU1BSUwiOiJkZW1vQG9jdG93YXRjaGRscC5jb20iLCJPQ1RPV0FUQ0hfUEFTU1dPUkQiOiJkZW1vIn19)
+Файл [../examples/cursor-mcp-pypi.json](../examples/cursor-mcp-pypi.json). Имя файла старое: пакета на PyPI нет, команда берётся из локальной установки.
 
-Manual steps:
+Корневой [../mcp.json](../mcp.json) вызывает `uvx sprutmonitor-mcp`. Так сервер запустится только после публикации на PyPI. До этого используйте примеры выше или запуск из каталога.
 
-1. Install the package (above).
-2. Open Cursor MCP settings and merge a server block from:
-   - Demo: [../examples/cursor-mcp-pypi.json](../examples/cursor-mcp-pypi.json)
-   - Your account: [../examples/cursor-mcp-pypi-with-env.json](../examples/cursor-mcp-pypi-with-env.json)
-3. Replace `YOUR_EMAIL` / `YOUR_PASSWORD` if using the with-env file.
-4. Restart Cursor (or reload MCP servers).
-5. In Agent chat try: *“Using OctoWatch, who am I logged in as?”*
+Свой кабинет: [../examples/cursor-mcp-pypi-with-env.json](../examples/cursor-mcp-pypi-with-env.json). Подставьте почту и пароль, перезапустите MCP и спросите, кто вошёл.
 
-### From source (Cursor)
+### Из исходников
 
-Use [../examples/cursor-mcp.json](../examples/cursor-mcp.json). Set `cwd` to your clone:
+[../examples/cursor-mcp.json](../examples/cursor-mcp.json): `command` = `python`, аргумент `-m sprutmonitor_mcp`, `cwd` — абсолютный путь к каталогу.
 
-- macOS/Linux: `/absolute/path/to/octowatch-mcp-server`
-- Windows: `D:\\Dropbox\\VS.Code\\2026\\octowatch-mcp-server` (escape backslashes in JSON)
+- macOS/Linux: `/absolute/path/to/sprutmonitor-mcp-server`
+- Windows в JSON: `D:\\path\\to\\sprutmonitor-mcp-server`
 
-Prefer the venv’s `python` if the host does not inherit your shell PATH.
+Если хост не видит PATH оболочки, укажите `python` из `.venv`.
 
 ## Claude Desktop
 
-1. `pip install octowatch-mcp`
-2. Edit Claude Desktop MCP config (`claude_desktop_config.json`) and merge:
-   - Demo: [../examples/claude-desktop-pypi.json](../examples/claude-desktop-pypi.json)
-   - Your account: [../examples/claude-desktop-pypi-with-env.json](../examples/claude-desktop-pypi-with-env.json)
-3. Restart Claude Desktop.
-4. Confirm the `octowatch` server is connected, then ask a risks/idle question.
+1. `pip install -e .` в каталоге пакета.
+2. В `claude_desktop_config.json` вставьте блок из [../examples/claude-desktop-pypi.json](../examples/claude-desktop-pypi.json) или [../examples/claude-desktop-pypi-with-env.json](../examples/claude-desktop-pypi-with-env.json).
+3. Перезапустите Claude Desktop.
+4. Сервер в списке называется `sprutmonitor`.
 
-From source: [../examples/claude-desktop.json](../examples/claude-desktop.json) with `cwd` set like Cursor.
+Из исходников: [../examples/claude-desktop.json](../examples/claude-desktop.json), `cwd` как у Cursor.
 
 ## VS Code
 
-One-click (demo credentials; `pip install octowatch-mcp` first):
+Тот же блок `command` + `env`, что у Cursor. Точный пункт меню зависит от версии поддержки MCP: «MCP: Open User Configuration» или `.vscode/mcp.json` в рабочей области.
 
-[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=octowatch&config=%7B%22command%22%3A%22octowatch-mcp%22%2C%22env%22%3A%7B%22OCTOWATCH_API_BASE%22%3A%22https%3A%2F%2Fcloud.octowatchdlp.com%22%2C%22OCTOWATCH_EMAIL%22%3A%22demo%40octowatchdlp.com%22%2C%22OCTOWATCH_PASSWORD%22%3A%22demo%22%7D%7D)
-[![Install in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install_Server-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=octowatch&config=%7B%22command%22%3A%22octowatch-mcp%22%2C%22env%22%3A%7B%22OCTOWATCH_API_BASE%22%3A%22https%3A%2F%2Fcloud.octowatchdlp.com%22%2C%22OCTOWATCH_EMAIL%22%3A%22demo%40octowatchdlp.com%22%2C%22OCTOWATCH_PASSWORD%22%3A%22demo%22%7D%7D&quality=insiders)
+## Свой вход
 
-Or add a stdio server that runs `octowatch-mcp` (same command/env as Cursor). Exact UI paths vary by VS Code MCP support version — use the host’s “MCP: Open User Configuration” (or workspace `.vscode/mcp.json`) and paste an equivalent `command` + `env` block. See Microsoft’s MCP docs for the current schema.
+По умолчанию демо `demo@sprutmonitor.ru` / `demo`. Для своего кабинета:
 
-## Your own login
+1. Возьмите оператора с урезанными правами в [кабинете](https://app.sprutmonitor.ru/).
+2. Задайте переменные:
 
-Defaults are the **public demo** (`demo@octowatchdlp.com` / `demo`). For your company tenant:
+| Переменная | Пример |
+|------------|--------|
+| `SPRUT_EMAIL` | `operator@example.com` |
+| `SPRUT_PASSWORD` | пароль |
+| `SPRUT_API_BASE` | `https://cloud.sprutmonitor.ru/v3` или свой `serverBase` |
 
-1. Create or use a **least-privilege** console operator in the [Web Console](https://app.octowatchdlp.com/).
-2. Set environment variables (prefix `OCTOWATCH_`):
+3. Лучше положить их в `env` JSON хоста, а не в репозиторий.
+4. Для запуска из исходников можно скопировать [../.env.example](../.env.example) в `.env` в рабочем каталоге процесса. `.env` не коммитить.
 
-| Variable | Example |
-|----------|---------|
-| `OCTOWATCH_EMAIL` | `operator@example.com` |
-| `OCTOWATCH_PASSWORD` | *(your password)* |
-| `OCTOWATCH_API_BASE` | `https://cloud.octowatchdlp.com` (or your documented `serverBase`) |
+Затем вызовите `sprutmonitor_whoami` и сверьте учётку с кабинетом.
 
-3. **Preferred for hosts:** put them in the MCP JSON `env` object (see with-env examples). The host injects them into the server process — no password in the repo.
-4. **Alternative (source / local CLI):** copy [../.env.example](../.env.example) to `.env` in the process working directory (`cwd`). Do not commit `.env`.
+### Своя база API
 
-Then call `octowatch_whoami` (or ask “who am I on OctoWatch?”) and confirm the account matches the console.
+Облако: `https://cloud.sprutmonitor.ru/v3`. Локальная установка: целиком `serverBase` из `spm-config.json`, со схемой и префиксом вроде `/MonitorServer`. Пакет этот JSON не читает. Не подставляйте адрес сайта кабинета `app.sprutmonitor.ru`: логин идёт на базу API, а клиент сам добавляет `/api/...`.
 
-### Custom API base
+Демо-кабинет общий. Короткие запросы лучше, чем `fetch_all` и обход всех видов мониторинга.
 
-Only use a publicly documented Cloud API host (`serverBase` from console config). Do not point this OSS client at undocumented internal hosts. Product and REST details: [octowatchdlp.com/docs/](https://octowatchdlp.com/docs/), [app.octowatchdlp.com/api/](https://app.octowatchdlp.com/api/).
+## Первые вопросы
 
-### Demo etiquette
+1. Кто я в СпрутМонитор?
+2. Риски за последнюю неделю.
+3. Список пользователей и групп.
 
-The demo tenant is shared. Prefer short questions over large `fetch_all` / multi-kind loops. Client-side rate limiting is on the roadmap.
+Если ответ пустой, сверьте тот же период в [кабинете](https://app.sprutmonitor.ru/).
 
-## First prompts
-
-After the server connects:
-
-1. “Using OctoWatch, who am I logged in as?”
-2. “List OctoWatch risks for the last week.”
-3. “List users and groups.”
-
-Compare aggregates in the [Web Console](https://app.octowatchdlp.com/) if something looks empty or unexpected.
-
-## Streamable HTTP (optional)
+## Streamable HTTP
 
 ```bash
-octowatch-mcp --transport streamable-http --host 127.0.0.1 --port 8000
+sprutmonitor-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
-Defaults to localhost. Binding elsewhere exposes the live session — see [SECURITY.md](../SECURITY.md).
+По умолчанию только localhost. Другой адрес выставляет сессию в сеть. См. [SECURITY.md](../SECURITY.md).
 
-## ChatGPT and other hosts
+## ChatGPT и прочие хосты
 
-There is **no** checked-in ChatGPT-specific JSON example. Many ChatGPT / cloud-agent setups expect a **remote** MCP URL (connectors), not a local `command` like Cursor/Claude Desktop.
+Отдельного JSON под ChatGPT нет: многие облачные агенты ждут удалённый URL, а не локальную команду.
 
-Practical options today:
+1. Для рабочего стола используйте Cursor, Claude Desktop или VS Code.
+2. Если хост умеет свой MCP по HTTP, поднимите Streamable HTTP на localhost и зарегистрируйте `http://127.0.0.1:8000/mcp` так, как написано у этого хоста.
 
-1. Use **Cursor**, **Claude Desktop**, or **VS Code** with the stdio examples in this doc (best path for `octowatch-mcp`).
-2. If your host documents custom MCP over HTTP, run Streamable HTTP locally (above) and register `http://127.0.0.1:8000/mcp` only as that host allows — keep bind on localhost unless you understand the risk.
+## Дальше
 
-When a stable public ChatGPT connector schema exists, we can add an `examples/` file; until then treat ChatGPT as host-dependent.
-
-## Next
-
-- Tool routing & args: [TOOLS.md](TOOLS.md)
-- Protocol / prompts: [MCP.md](MCP.md)
-- Problems: [troubleshooting.md](troubleshooting.md)
+- Аргументы: [TOOLS.md](TOOLS.md)
+- Протокол: [MCP.md](MCP.md)
+- Сбои: [troubleshooting.md](troubleshooting.md)

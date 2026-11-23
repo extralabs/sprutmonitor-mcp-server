@@ -7,7 +7,7 @@ Do NOT confuse with GetUsersGroups2 Item.Type (0=root, 1=group, 2=user).
 
 from __future__ import annotations
 
-from octowatch_mcp.config import ROOT_FILTER
+from sprutmonitor_mcp.config import ROOT_FILTER
 
 # _TypeNodeID (common)
 NODE_ALL = -666666

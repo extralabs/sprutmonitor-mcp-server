@@ -1,76 +1,55 @@
-# Contributing
+# Участие
 
-Thanks for helping improve **octowatch-mcp** — the read-only MCP server for [OctoWatch DLP Cloud](https://octowatchdlp.com/).
+Пакет `sprutmonitor-mcp` — MCP-сервер только на чтение для [СпрутМонитор](https://sprutmonitor.ru/).
 
-## Development setup
+## Сборка
 
-Requires **Python 3.10+**.
+Нужен Python 3.10+.
 
 ```bash
-git clone https://github.com/extralabs/octowatch-mcp-server.git
-cd octowatch-mcp-server
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-# source .venv/bin/activate
-
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env   # optional; demo defaults work without it
 ```
 
-Run the server:
+Запуск: `sprutmonitor-mcp` или `python -m sprutmonitor_mcp`.
 
-```bash
-python -m octowatch_mcp
-# or: octowatch-mcp
-```
-
-## Checks
+## Проверки
 
 ```bash
 ruff check src tests
 ruff format --check src tests
+# Windows PowerShell:
+$env:SPRUT_SKIP_LIVE = "1"
 pytest tests/ -q
 ```
 
-CI runs the same unit job on Python 3.10 and 3.12 (`OCTOWATCH_SKIP_LIVE=1`), plus a live demo smoke on `main`. Prefer keeping new tests offline-friendly unless you intentionally extend the smoke job.
+CI гоняет те же юнит-тесты на Python 3.10 и 3.12 с `SPRUT_SKIP_LIVE=1` и отдельно живой smoke демо. Новые тесты по возможности оставляйте без сети.
 
-## Documentation
+## Документация
 
-User-facing docs live in `README.md` and `docs/`. When you change tool signatures, env vars, or tool routing:
+Тексты для людей — на русском (`README.md`, `docs/`). Описания tools в `server.py`, по которым модель выбирает инструмент, — на английском.
 
-1. Update [docs/TOOLS.md](docs/TOOLS.md) and the thin README tables
-2. Keep [docs/hosts.md](docs/hosts.md) / `.env.example` in sync for config changes
-3. Align when-which-tool text with `octowatch://tool-routing` / server instructions in `src/octowatch_mcp/server.py`
+Если меняются аргументы, переменные или маршрутизация:
 
-Do **not** paste product-site or `/api/` catalog text verbatim — link out and write MCP-specific notes. See the content boundary notes in [docs/README.md](docs/README.md).
+1. Обновите [docs/TOOLS.md](docs/TOOLS.md) и таблицы в README.
+2. Синхронизируйте [docs/hosts.md](docs/hosts.md) и `.env.example`.
+3. Сверьте текст «какой tool когда» с ресурсом `sprutmonitor://tool-routing` и инструкциями в `src/sprutmonitor_mcp/server.py`.
 
-Product links to keep current:
+Не копируйте в репозиторий большие куски сайта и каталога `/api/`. Ссылайтесь на них и пишите только то, что нужно MCP.
 
-- https://octowatchdlp.com/
-- https://octowatchdlp.com/docs/
-- https://app.octowatchdlp.com/
-- https://app.octowatchdlp.com/api/
+- https://sprutmonitor.ru/
+- https://sprutmonitor.ru/docs/
+- https://app.sprutmonitor.ru/
+- https://app.sprutmonitor.ru/api/
 
-## Release (maintainers)
+Пути `/api/...`, фильтры TreeviewUsers, режим только на чтение и отказ скачивать видео не меняйте без отдельного решения: это общий API кабинета.
 
-Publishing to **PyPI** and the **official MCP Registry** is automated on a version tag. The version in `pyproject.toml` must match the tag (`0.5.1` → `v0.5.1`):
+## Публикация
 
-```bash
-# 1) Commit + push version bump / changelog to main
-# 2) Then:
-git tag v0.5.1
-git push origin v0.5.1
-```
+Своего GitHub и PyPI пока нет. Не ставьте тег `v*` и не запускайте [`.github/workflows/publish.yml`](.github/workflows/publish.yml). См. [docs/distribution.md](docs/distribution.md).
 
-Workflow [`.github/workflows/publish.yml`](.github/workflows/publish.yml): Trusted Publisher → PyPI, then `mcp-publisher` via GitHub OIDC. Details: [docs/registry.md](docs/registry.md).
+## Лицензия
 
-Directory / Marketplace discovery (no MCP hosting): [docs/distribution.md](docs/distribution.md). Cursor plugin files: [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json), [`mcp.json`](mcp.json). Local plugin test: junction/symlink the repo to `~/.cursor/plugins/local/octowatch`, then **Developer: Reload Window**.
-
-Update [CHANGELOG.md](CHANGELOG.md) before tagging. Keep `<!-- mcp-name: io.github.extralabs/octowatch-mcp -->` in `README.md`.
-When shipping a Cursor Marketplace update, bump `version` in `.cursor-plugin/plugin.json` and re-submit at [cursor.com/marketplace/publish](https://cursor.com/marketplace/publish).
-
-## License
-
-By contributing, you agree that your contributions are licensed under the MIT License — see [LICENSE](LICENSE).
+Вклад идёт под MIT. Текст лицензии и уведомление о правах в [LICENSE](LICENSE) не удаляйте.

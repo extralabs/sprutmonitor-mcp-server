@@ -1,9 +1,9 @@
 ---
-description: Public OSS boundary — never leak secrets or proprietary source from private OctoWatch repos
+description: Public OSS boundary — never leak secrets or proprietary source from private SprutMonitor repos
 alwaysApply: true
 ---
 
-# Public OSS safety (octowatch-mcp-server)
+# Public OSS safety (sprutmonitor-mcp-server)
 
 This repository is **public open source**. Anything committed or pasted into docs/examples/code here can be published.
 
@@ -26,7 +26,7 @@ Do **not**:
 
 ## Allowed
 
-- Public demo credentials (`demo@octowatchdlp.com` / `demo`) with clear warnings
+- Public demo credentials (`demo@sprutmonitor.ru` / `demo`) with clear warnings
 - Documented REST paths, headers, and JSON shapes needed for the MCP client
 - Minimal original OSS code that calls the public API
 - High-level notes in `docs/` that describe **behavior**, not internal implementation

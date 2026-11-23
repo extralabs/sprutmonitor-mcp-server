@@ -1,12 +1,12 @@
 {
   "mcpServers": {
-    "octowatch": {
+    "sprutmonitor": {
       "command": "uvx",
-      "args": ["octowatch-mcp"],
+      "args": ["sprutmonitor-mcp"],
       "env": {
-        "OCTOWATCH_API_BASE": "${OCTOWATCH_API_BASE}",
-        "OCTOWATCH_EMAIL": "${OCTOWATCH_EMAIL}",
-        "OCTOWATCH_PASSWORD": "${OCTOWATCH_PASSWORD}"
+        "SPRUT_API_BASE": "${SPRUT_API_BASE}",
+        "SPRUT_EMAIL": "${SPRUT_EMAIL}",
+        "SPRUT_PASSWORD": "${SPRUT_PASSWORD}"
       }
     }
   }

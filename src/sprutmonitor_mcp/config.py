@@ -1,4 +1,4 @@
-"""Runtime settings for the OctoWatch MCP server.
+"""Runtime settings for the SprutMonitor MCP server.
 
 Defaults intentionally point at the public demo tenant so `pip install` + run
 works out of the box. Production credentials must come from env / .env and
@@ -13,9 +13,9 @@ from functools import lru_cache
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-DEMO_EMAIL = "demo@octowatchdlp.com"
+DEMO_EMAIL = "demo@sprutmonitor.ru"
 DEMO_PASSWORD = "demo"
-DEFAULT_API_BASE = "https://cloud.octowatchdlp.com"
+DEFAULT_API_BASE = "https://cloud.sprutmonitor.ru/v3"
 
 # TreeviewUsers root = all users (NodeType RemoteComputer = -666666).
 # Group filter uses NodeType=14; user filter uses NodeType=1 (see filters.py).
@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        env_prefix="OCTOWATCH_",
+        env_prefix="SPRUT_",
         extra="ignore",
     )
 
@@ -50,9 +50,9 @@ class Settings(BaseSettings):
     def warn_if_demo(self) -> None:
         if self.is_demo:
             warnings.warn(
-                "Using OctoWatch DEMO credentials "
+                "Using SprutMonitor DEMO credentials "
                 f"({DEMO_EMAIL}). Do not put production passwords in config "
-                "or MCP JSON; use OCTOWATCH_EMAIL / OCTOWATCH_PASSWORD env vars.",
+                "or MCP JSON; use SPRUT_EMAIL / SPRUT_PASSWORD env vars.",
                 UserWarning,
                 stacklevel=2,
             )

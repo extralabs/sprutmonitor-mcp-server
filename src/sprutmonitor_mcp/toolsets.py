@@ -1,15 +1,15 @@
-"""Toolset filtering for OCTOWATCH_TOOLSETS (GitHub MCP–style)."""
+"""Toolset filtering for SPRUT_TOOLSETS (GitHub MCP–style)."""
 
 from __future__ import annotations
 
 import logging
 import os
 
-logger = logging.getLogger("octowatch_mcp")
+logger = logging.getLogger("sprutmonitor_mcp")
 
 CORE_TOOLS = frozenset(
     {
-        "octowatch_whoami",
+        "sprutmonitor_whoami",
         "list_users_groups",
         "list_risks",
         "list_anomalies",
@@ -47,7 +47,7 @@ def resolve_enabled_tools(raw: str | None = None) -> frozenset[str] | None:
 
     ``console`` alone auto-includes ``core``.
     """
-    value = (raw if raw is not None else os.environ.get("OCTOWATCH_TOOLSETS", "all")).strip()
+    value = (raw if raw is not None else os.environ.get("SPRUT_TOOLSETS", "all")).strip()
     if not value or value.lower() == "all":
         return None
 
@@ -55,7 +55,7 @@ def resolve_enabled_tools(raw: str | None = None) -> frozenset[str] | None:
     unknown = parts - {"core", "console", "all"}
     if unknown:
         raise ValueError(
-            f"Unknown OCTOWATCH_TOOLSETS entries: {sorted(unknown)}. "
+            f"Unknown SPRUT_TOOLSETS entries: {sorted(unknown)}. "
             "Use: all | core | console | core,console"
         )
     if "all" in parts:

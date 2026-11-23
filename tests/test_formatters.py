@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from octowatch_mcp.formatters import (
+from sprutmonitor_mcp.formatters import (
     analytics_risks_by_user,
     filter_by_alias_id,
     format_activity_top,
@@ -12,7 +12,7 @@ from octowatch_mcp.formatters import (
     seconds_hms,
     summarize_risks_page,
 )
-from octowatch_mcp.report_types import label_report_types
+from sprutmonitor_mcp.report_types import label_report_types
 
 
 def test_filter_by_alias_id_ignores_event_id() -> None:

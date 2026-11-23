@@ -12,7 +12,7 @@ COVERAGE: list[dict[str, str]] = [
     {
         "area": "Auth",
         "endpoint": "GET /api/Access/login-jwt",
-        "tool": "octowatch_whoami",
+        "tool": "sprutmonitor_whoami",
         "status": "covered",
     },
     {
@@ -168,9 +168,15 @@ COVERAGE: list[dict[str, str]] = [
     # Account / reports
     {
         "area": "Account",
-        "endpoint": "Account/Edit Get* profiles, settings, license, categories",
+        "endpoint": "Account/Edit Get* profiles, settings, categories",
         "tool": "get_account_readonly",
         "status": "covered",
+    },
+    {
+        "area": "Account",
+        "endpoint": "getlicenseinfo-jwt / getlicenseinfo-expired-jwt / getlicenseinfo-support-jwt",
+        "tool": "—",
+        "status": "out_of_scope_not_in_console",
     },
     {
         "area": "Account",

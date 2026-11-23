@@ -1,44 +1,45 @@
-# Security policy
+# Безопасность
 
-## Reporting a vulnerability
+## Как сообщить об уязвимости
 
-Please open a [GitHub Security Advisory](https://github.com/extralabs/octowatch-mcp-server/security/advisories/new) or a private report via [Issues](https://github.com/extralabs/octowatch-mcp-server/issues) if advisories are unavailable. Do not post production credentials or customer monitoring payloads in public issues.
+Своего публичного трекера у этого каталога пока нет. Не присылайте боевые пароли и выгрузки мониторинга в открытые каналы. Почта продукта: support@sprutmonitor.ru.
 
-## What this server does
+## Что делает сервер
 
-`octowatch-mcp` is a **read-only** [MCP](https://modelcontextprotocol.io/) **server** for [OctoWatch DLP Cloud](https://octowatchdlp.com/). It authenticates to the Cloud API (as an HTTP client) and exposes console analytics, monitoring lists, risks, productivity, and directory reads to AI hosts (Cursor, Claude Desktop, VS Code, …).
+`sprutmonitor-mcp` — MCP-сервер только на чтение для облака [СпрутМонитор](https://sprutmonitor.ru/). Он входит в API кабинета и отдаёт аналитику, списки мониторинга, риски, продуктивность и справочники хостам вроде Cursor, Claude Desktop и VS Code.
 
-It does **not**:
+Он не делает следующее:
 
-- Create, update, or delete console data (no Set\*/queue-mail/billing writes)
-- Download screenshot or video **binaries** (metadata-only stream tools)
-- Replace the [Web Console](https://app.octowatchdlp.com/) or product guides at [octowatchdlp.com/docs/](https://octowatchdlp.com/docs/)
+- не создаёт, не меняет и не удаляет данные кабинета (нет Set*, очереди писем и биллинга);
+- не скачивает бинарные скриншоты и видео (у потока только метаданные);
+- не заменяет [кабинет](https://app.sprutmonitor.ru/) и [документацию продукта](https://sprutmonitor.ru/docs/).
 
-## Credentials
+## Учётные данные
 
-- Defaults use the public **demo** account (`demo@octowatchdlp.com` / `demo`) so a quick local try works without a `.env`.
-- For a real tenant, set `OCTOWATCH_EMAIL` / `OCTOWATCH_PASSWORD` (and optionally `OCTOWATCH_API_BASE`) via environment variables or the MCP host `env` block. See [docs/hosts.md](docs/hosts.md).
-- **Never commit** production passwords to git, MCP example JSON, or chat logs.
-- Prefer a **least-privilege** console operator, not a full admin, when wiring AI hosts.
+- По умолчанию публичное демо: `demo@sprutmonitor.ru` / `demo`, чтобы сервер запускался без `.env`.
+- Свой кабинет: `SPRUT_EMAIL`, `SPRUT_PASSWORD` и при необходимости `SPRUT_API_BASE` через окружение или блок `env` хоста. См. [docs/hosts.md](docs/hosts.md).
+- Боевые пароли не коммитить: ни в git, ни в примеры JSON, ни в переписку.
+- Вход `login-jwt` передаёт пароль в query string. В ответ `sprutmonitor_whoami` он не попадает. Если где-то включён лог HTTP-клиента, этот URL окажется в stderr.
+- Для ИИ-хоста лучше оператор с урезанными правами, не полный администратор.
 
-## Sensitive data
+## Чувствительные данные
 
-Tool responses may include employee-monitoring content (activity, keystrokes snippets, mail metadata, risk hits, and similar). Treat outputs as **confidential**:
+Ответы могут содержать активность сотрудников, фрагменты нажатий клавиш, метаданные почты и срабатывания правил. Считайте это конфиденциальным:
 
-- Do not paste raw tool JSON into public channels
-- Align usage with your organization’s monitoring and privacy policies
-- The shared demo tenant is for evaluation only — do not assume it is private or production data
+- не публикуйте сырой JSON tools;
+- сверяйтесь с политикой мониторинга в организации;
+- демо-кабинет общий, это не ваши производственные данные.
 
-Compact mode truncates some long text fields; that is a token/UX guard, **not** a security boundary.
+Режим `compact` обрезает длинный текст ради объёма ответа. Это не граница безопасности.
 
-## Transports
+## Транспорт
 
-- Default transport is **stdio** (host spawns the process).
-- Optional `--transport streamable-http` binds to `127.0.0.1` by default. Binding to other interfaces exposes the session (and thus API credentials in use) on the network — avoid unless you understand the risk.
+- По умолчанию stdio: хост сам запускает процесс.
+- `--transport streamable-http` слушает `127.0.0.1`. Другой адрес выставляет сессию и используемые учётные данные в сеть.
 
-## Further reading
+## Ссылки
 
-- Product: [octowatchdlp.com](https://octowatchdlp.com/)
-- Product docs: [octowatchdlp.com/docs/](https://octowatchdlp.com/docs/)
-- Console: [app.octowatchdlp.com](https://app.octowatchdlp.com/)
-- API catalog: [app.octowatchdlp.com/api/](https://app.octowatchdlp.com/api/)
+- [sprutmonitor.ru](https://sprutmonitor.ru/)
+- [sprutmonitor.ru/docs/](https://sprutmonitor.ru/docs/)
+- [app.sprutmonitor.ru](https://app.sprutmonitor.ru/)
+- [app.sprutmonitor.ru/api/](https://app.sprutmonitor.ru/api/)

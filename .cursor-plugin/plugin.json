@@ -1,50 +1,50 @@
 {
-  "name": "octowatch",
-  "displayName": "OctoWatch DLP",
+  "name": "sprutmonitor",
+  "displayName": "SprutMonitor DLP",
   "version": "0.5.1",
-  "description": "Read-only OctoWatch DLP Cloud (octowatchdlp.com) MCP: risks, idle time, productivity, and employee monitoring. Runs locally; demo or your console login.",
+  "description": "Read-only SprutMonitor DLP Cloud (sprutmonitor.ru) MCP: risks, idle time, productivity, and employee monitoring. Runs locally; demo or your console login.",
   "author": {
-    "name": "KOLIBRI LLC",
-    "email": "support@octowatchdlp.com"
+    "name": "SprutMonitor",
+    "email": "support@sprutmonitor.ru"
   },
-  "homepage": "https://octowatchdlp.com/",
-  "repository": "https://github.com/extralabs/octowatch-mcp-server",
+  "homepage": "https://sprutmonitor.ru/",
+  "repository": "https://github.com/extralabs/sprutmonitor-mcp-server",
   "license": "MIT",
   "keywords": [
     "mcp",
     "mcp-server",
-    "octowatch",
-    "octowatch-dlp",
+    "sprutmonitor",
+    "sprutmonitor-dlp",
     "dlp",
     "security",
     "employee-monitoring",
     "productivity"
   ],
   "category": "security",
-  "tags": ["mcp", "dlp", "employee-monitoring", "octowatchdlp"],
+  "tags": ["mcp", "dlp", "employee-monitoring", "sprutmonitor"],
   "mcpServers": "mcp.json",
   "variables": {
     "type": "object",
     "properties": {
-      "OCTOWATCH_API_BASE": {
+      "SPRUT_API_BASE": {
         "type": "string",
         "title": "API base URL",
         "description": "Cloud API host (serverBase). Leave default for public cloud.",
-        "default": "https://cloud.octowatchdlp.com"
+        "default": "https://cloud.sprutmonitor.ru/v3"
       },
-      "OCTOWATCH_EMAIL": {
+      "SPRUT_EMAIL": {
         "type": "string",
         "title": "Console email",
         "description": "Operator email. Demo default works for try-out; use your least-privilege operator for a real tenant.",
-        "default": "demo@octowatchdlp.com"
+        "default": "demo@sprutmonitor.ru"
       },
-      "OCTOWATCH_PASSWORD": {
+      "SPRUT_PASSWORD": {
         "type": "string",
         "title": "Console password",
         "description": "Operator password. Demo default is \"demo\". Never commit production passwords.",
         "default": "demo"
       }
     },
-    "required": ["OCTOWATCH_EMAIL", "OCTOWATCH_PASSWORD"]
+    "required": ["SPRUT_EMAIL", "SPRUT_PASSWORD"]
   }
 }

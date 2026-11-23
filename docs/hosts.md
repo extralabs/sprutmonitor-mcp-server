@@ -10,13 +10,6 @@
 - Пакет из исходников: `pip install -e .` в этом каталоге (на PyPI его нет)
 - Путь к web-api серверу СпрутМонитор. Например: `https://cloud.sprutmonitor.ru/v3` или `http://192.168.1.8:82/MonitorServer/`
 
-| Хост | Статус |
-|------|--------|
-| Cursor | Ожидается |
-| Claude Desktop | Ожидается |
-| VS Code (MCP) | Ожидается |
-| Другие клиенты MCP | По возможности, stdio JSON-RPC |
-
 ## Cursor
 
 Демо, если команда `sprutmonitor-mcp` уже в PATH после `pip install -e .`:

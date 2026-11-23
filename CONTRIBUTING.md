@@ -46,10 +46,6 @@ CI гоняет те же юнит-тесты на Python 3.10 и 3.12 с `SPRUT
 
 Пути `/api/...`, фильтры TreeviewUsers, режим только на чтение и отказ скачивать видео не меняйте без отдельного решения: это общий API кабинета.
 
-## Публикация
-
-Своего GitHub и PyPI пока нет. Не ставьте тег `v*` и не запускайте [`.github/workflows/publish.yml`](.github/workflows/publish.yml). См. [docs/distribution.md](docs/distribution.md).
-
 ## Лицензия
 
 Вклад идёт под MIT. Текст лицензии и уведомление о правах в [LICENSE](LICENSE) не удаляйте.

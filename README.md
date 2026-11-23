@@ -144,8 +144,6 @@ sprutmonitor-mcp --transport streamable-http
 | [docs/MCP.md](docs/MCP.md) | Протокол, ресурсы, промпты |
 | [docs/API.md](docs/API.md) | Что из API кабинета покрыто |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Типовые сбои |
-| [docs/distribution.md](docs/distribution.md) | Публикация ждёт своего репозитория |
-| [docs/registry.md](docs/registry.md) | Реестр MCP пока не используется |
 
 ## Участие
 
